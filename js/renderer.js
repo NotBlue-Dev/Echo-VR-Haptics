@@ -57,6 +57,10 @@ function animate() {
                 
                 playerL = resp.data.teams[0].players[i].lhand;
                 playerR = resp.data.teams[0].players[i].rhand;
+                
+                if((playerL.pos[0] <= player.position[0]+0.18 && playerL.pos[0] >= player.position[0]-0.18) && (playerL.pos[1] <= player.position[1]+0.64 && playerL.pos[1] >= player.position[1]-0.64) && (playerL.pos[2] <= player.position[2]+0.15 && playerL.pos[2] >= player.position[2]-0.20)) console.log('contact Left') 
+
+                if(playerR.pos[0] <= player.position[0]+0.18 && playerR.pos[0] >= player.position[0]-0.18 && (playerR.pos[1] <= player.position[1]+0.64 && playerR.pos[1] >= player.position[1]-0.64) && (playerR.pos[2] <= player.position[2]+0.15 && playerR.pos[2] >= player.position[2]-0.20) ) console.log('contact RIGHT') 
 
                 window['handL' + i].position.set(playerL.pos[0], playerL.pos[1], playerL.pos[2]);
                 window['handR' + i].position.set(playerR.pos[0], playerR.pos[1], playerR.pos[2]);
