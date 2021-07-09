@@ -8,3 +8,5 @@ maybe:
 
 disc touch body
 touch if someone hand coordinate are same as body coordinate => touch
+
+changement brutal velocity == choc donc vibration
