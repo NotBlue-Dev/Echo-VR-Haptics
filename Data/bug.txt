@@ -1,0 +1,23 @@
+contact sans toucher 
+
+contact RIGHT BabaJor IN MelonAmy  TEAM 1
+renderer.js:151 6.1540003 1.4170001 -6.7810001
+renderer.js:152 6.2430005 1.8500001 -6.9120002
+renderer.js:153 contact RIGHT BabaJor IN MelonAmy  TEAM 1
+renderer.js:151 6.0870004 0.89200002 -3.7170002
+renderer.js:152 6.0650001 1.4020001 -3.8550003
+renderer.js:153 contact RIGHT BabaJor IN MelonAmy  TEAM 1
+renderer.js:151 6.2250004 0.65100002 -2.24
+renderer.js:152 6.2010002 1.108 -2.3240001
+renderer.js:153 contact RIGHT BabaJor IN MelonAmy  TEAM 1
+renderer.js:151 6.6530004 0.37200001 0.78600001
+renderer.js:152 6.6530004 0.73200005 0.68300003
+renderer.js:153 contact RIGHT BabaJor IN MelonAmy  TEAM 1
+renderer.js:151 6.7720003 0.37800002 2.2190001
+renderer.js:152 6.8090005 0.71400005 2.2210002
+renderer.js:153 contact RIGHT BabaJor IN MelonAmy  TEAM 1
+renderer.js:151 6.9150004 0.64100003 3.7390001
+renderer.js:152 6.9880004 0.96300006 3.7270002
+renderer.js:153 contact RIGHT BabaJor IN MelonAmy  TEAM 1
+renderer.js:151 6.6830001 1.0930001 12.204
+renderer.js:152 6.7410002 1.3260001 12.134001
