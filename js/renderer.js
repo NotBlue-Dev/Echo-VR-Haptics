@@ -2,6 +2,7 @@
 const axios = require('axios');
 
 let ip = '192.168.1.53'
+//let ip = 'localhost'
 
 let pseudo = ""
 
@@ -26,6 +27,8 @@ const disk = new THREE.Mesh( geometryDisk, materialDisc );
 
 scene.add( disk );
 
+let rotationMatrixOrange = new THREE.Matrix4();
+let rotationMatrixBlue = new THREE.Matrix4();
 
 //on crée des obj sous forme nom"i"
 for (var i = 0; i <= 7; i++) {
@@ -148,6 +151,7 @@ function getInfo() {
         } else if (pseudo == "" && init == false) {
             init = true;
             animate()
+            console.log('sssss')
         }
     });
     }, 100);
@@ -171,15 +175,21 @@ function animate() {
                     playerL = resp.data.teams[0].players[i].lhand;
                     playerR = resp.data.teams[0].players[i].rhand;
                     
+                    //test matrix
+
+                    rotationMatrixOrange.set( 
+                    player.left[0]  ,player.left[1]  ,player.left[2] ,0
+                    ,player.up[0]  ,player.up[1]  ,player.up[2]  ,0
+                    ,player.forward[0]  ,player.forward[1]  ,player.forward[2]  ,0
+                    ,0  ,0  ,0  ,1
+                    );
+                    window['cube' + i].quaternion.setFromRotationMatrix(rotationMatrixOrange);
+
+                    //end
+
                     //TEST ORIENTATION 2 WORKING
 
-                    let x = Math.atan2(Math.sqrt(Math.pow(player.forward[1],2)+Math.pow(player.forward[2],2)), player.forward[0],2)
-                    let y = Math.atan2(Math.sqrt(Math.pow(player.forward[2],2)+Math.pow(player.forward[0],2)), player.forward[1],2)
-                    let z = Math.atan2(Math.sqrt(Math.pow(player.forward[0],2)+Math.pow(player.forward[1],2)), player.forward[2],2)
-                    
-                    window['cube' + i].rotation.x = x
-                    window['cube' + i].rotation.y = y
-                    window['cube' + i].rotation.z = z
+
 
                     //end test 2
 
@@ -196,15 +206,26 @@ function animate() {
                     player = resp.data.teams[1].players[i].body;
                     window['cube' + mathI].position.set(player.position[0], player.position[1]-0.5, player.position[2]);
 
+                    //test matrix 3
+                    rotationMatrixBlue.set( 
+                    player.left[0]  ,player.left[1]  ,player.left[2] ,0
+                    ,player.up[0]  ,player.up[1]  ,player.up[2]  ,0
+                    ,player.forward[0]  ,player.forward[1]  ,player.forward[2]  ,0
+                    ,0  ,0  ,0  ,1
+                    );
+                    window['cube' + i].quaternion.setFromRotationMatrix(rotationMatrixBlue);
+                   
+                    //end
+
                     //TEST ORIENTATION 2 WORKING
 
-                    let x = Math.atan2(Math.sqrt(Math.pow(player.forward[1],2)+Math.pow(player.forward[2],2)), player.forward[0],2)
-                    let y = Math.atan2(Math.sqrt(Math.pow(player.forward[2],2)+Math.pow(player.forward[0],2)), player.forward[1],2)
-                    let z = Math.atan2(Math.sqrt(Math.pow(player.forward[0],2)+Math.pow(player.forward[1],2)), player.forward[2],2)
+                    // let x = Math.atan2(Math.sqrt(Math.pow(player.forward[1],2)+Math.pow(player.forward[2],2)), player.forward[0],2)
+                    // let y = Math.atan2(Math.sqrt(Math.pow(player.forward[2],2)+Math.pow(player.forward[0],2)), player.forward[1],2)
+                    // let z = Math.atan2(Math.sqrt(Math.pow(player.forward[0],2)+Math.pow(player.forward[1],2)), player.forward[2],2)
 
-                    window['cube' + mathI].rotation.x = x
-                    window['cube' + mathI].rotation.y = y
-                    window['cube' + mathI].rotation.z = z
+                    // window['cube' + mathI].rotation.x = x
+                    // window['cube' + mathI].rotation.y = y
+                    // window['cube' + mathI].rotation.z = z
                     
                     //END TEST 2
 
