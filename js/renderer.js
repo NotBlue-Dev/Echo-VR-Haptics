@@ -1,8 +1,8 @@
 
 const axios = require('axios');
 
-let ip = '192.168.1.53'
-//let ip = 'localhost'
+//let ip = '192.168.1.53'
+let ip = 'localhost'
 
 let pseudo = ""
 
