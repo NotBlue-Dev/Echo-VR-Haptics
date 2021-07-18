@@ -18,5 +18,10 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^13.1.5"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "tact-js": "^0.3.2",
+    "three": "^0.130.1"
   }
 }
