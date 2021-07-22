@@ -2,10 +2,13 @@ const tactJs = require('./tact-js/tact-js.umd.js')
 
 let connect = false;
     
-//try catch car la lib bhaptic catch pas si le player est pas allumer et ca fais tout crash
+
 module.exports = function() {
     return connection()
 }
+
+//## BUG ##
+//la lib bhaptic catch pas si le player est pas allumer et ca fais tout crash
 
 function connection() {
     return new Promise((resolve, reject) => {
