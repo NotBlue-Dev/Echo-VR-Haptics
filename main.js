@@ -29,31 +29,34 @@ bhaptic().then((txt) => {
         console.log('Bhaptic player as an issue')
     } else {
         console.log('Connected to Bhaptic Player')
-        
     }
 })
 
 function playId() {
-    //on trouve le joueur dans le json retourner par l'api
+    //get player in json
     axios.get(`http://${ip}:6721/session`).then(resp => { 
         //team bleu
         let arr0 = resp.data.teams[0].players;
-
-        if(arr0.some(item => item.name === pseudo)) {
-            team = 0; 
-            teamlen = arr0.length;
-            index = arr0.findIndex((element, index) => {if (element.name === pseudo) {return true}})
+        
+        if(arr0 != undefined) {
+            if(arr0.some(item => item.name === pseudo)) {
+                team = 0; 
+                teamlen = arr0.length;
+                index = arr0.findIndex((element, index) => {if (element.name === pseudo) {return true}})
+            }
         }
-    
+
         //team orange
         let arr1 = resp.data.teams[1].players;
-    
-        if(arr1.some(item => item.name === pseudo)) {
-            team = 1;
-            teamlen = arr1.length
-            index = arr1.findIndex((element, index) => {if (element.name === pseudo) {return true}})
+
+        if(arr1 != undefined) {
+            if(arr1.some(item => item.name === pseudo)) {
+                team = 1;
+                teamlen = arr1.length
+                index = arr1.findIndex((element, index) => {if (element.name === pseudo) {return true}})
+            }
         }
-        
+
         playerid = resp.data.teams[team].players[index].playerid;
         stuns = resp.data.teams[team].players[index].stats.stuns
         orangepoints = resp.data.orange_points;
@@ -65,15 +68,15 @@ function playId() {
 
 function request() {
     axios.get(`http://${ip}:6721/session`).then(resp => { 
-        if(team == undefined) {
+        
+        if(team == undefined && (resp.data.match_type == 'Echo_Arena' || resp.data.match_type == 'Echo_Arena_Private')) {
             console.log(`Connected to ${ip}, Echo Arena API`)
             playId()
-        } else {
+        } else if (resp.data.match_type == 'Echo_Arena' || resp.data.match_type == 'Echo_Arena_Private') {
             //player left ? on actu
             if(teamlen != resp.data.teams[team].players.length) playId()
             //refresh
             let player = resp.data.teams[team].players[index]
-            
             //end game ?
             let clock = resp.data.game_clock_display.split('.')[0].replace(":", ".")
             clock = clock.replace(clock.charAt(0), '')
@@ -104,7 +107,7 @@ function request() {
                 }, 3000);
             } 
 
-            //someone grab my back ? (dure 10ms donc tant que grab on submit)
+            //someone grab my back ?
             for(let i in resp.data.teams[0].players) {
                 if((resp.data.teams[0].players[i].holding_right == playerid || resp.data.teams[0].players[i].holding_left == playerid) && resp.data.game_status == "playing") {
                     tactJs.default.submitRegistered('grab');
@@ -133,14 +136,14 @@ function request() {
                 }, 400);
             }
 
-            //stun qlq ? (l'api met trop de tps a ajouter le stun au compteur donc y'a un gros décalage)
+            //stun smone ? #Broken#
 
             // if(player.stats.stuns != stuns) {
             //     stuns = player.stats.stuns;
             //     tactJs.default.submitRegistered('stun');
             // }
 
-            //ta manger un mur pélo ? (c pété faut réparer)
+            //hit a wall ?
             
             let velocity = resp.data.teams[team].players[index].velocity
             let pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2)+ Math.pow(velocity[2], 2);
@@ -150,13 +153,26 @@ function request() {
             }
             lastVel = pyVeloc
         }
-        request() //quand tout est finis on relance la requete (si on fais un interval ca flood le casque)
-    }).catch(err =>{
-        request()
-        if(err.code != undefined) {
-            console.log(`Error : ${err.code}`)
+        
+
+        request() //restart request
+    }).catch(error =>{
+        if (error.response) {
+            if(error.response.status == 404) {
+                console.log('in Menu/Loading or invalid IP')
+            } else {
+                console.log(error.response.status)
+            }
+        } else if (error.request) {
+            console.log('Connection refused, game running ?');
         } else {
-            console.log(err)
+            console.log('Error', error.message);
         }
+
+        //auto restart after 5s
+        setTimeout(() => {
+            request()
+        }, 5000);
     })
 }
+

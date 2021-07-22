@@ -10,7 +10,7 @@ let pseudo;
 function find() {
     return new Promise((resolve, reject) => {
         fs.readFile('./config.json', 'utf8', function(err, data) {
-            if(data.length ==2) {
+            if(data.length < 4) {
                 
                 prompt.start();
                 
