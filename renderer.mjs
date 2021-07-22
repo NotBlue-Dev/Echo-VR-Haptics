@@ -34,25 +34,43 @@ fs.readFile('./config.json', 'utf8', function(err, data){
                                 }
                             } catch {}
                         });
-                    }
+                    }  
                 }
+
+                setTimeout(() => {
+                    if(ip == undefined) {
+                        console.log('Cant find quest IP, enter manually in config.json, auto exit in 5s') 
+                        setTimeout(() => {
+                            process.exit(1)
+                        }, 5000);
+                    } else {
+                        names()
+                    }
+                    
+                }, 10000);
+                
             } else {
                 ip = 'localhost'
             }
-            prompt.get(['pseudo'], function (err, result) {
-                pseudo = Object.values(result)[0]
-                let obj = {"ip":ip, "pseudo":pseudo}
-                fs.writeFileSync('../../config.json', JSON.stringify(obj));
-                haptic()
+            
+            if(type != 'quest') names()
 
-            })
+            function names() {
+                prompt.get(['pseudo'], function (err, result) {
+                    pseudo = Object.values(result)[0]
+                    let obj = {"ip":ip, "pseudo":pseudo}
+                    console.log(obj)
+                    fs.writeFileSync('./config.json', JSON.stringify(obj));
+                    haptic()
+                })
+            }
+    
         });
     } else {
         data = JSON.parse(data)
         ip = data.ip
         pseudo = data.pseudo
         haptic()
-
     }
 });
 
