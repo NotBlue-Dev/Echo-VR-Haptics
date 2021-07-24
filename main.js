@@ -146,16 +146,21 @@ function request() {
             //hit a wall ?
             
             let velocity = resp.data.teams[team].players[index].velocity
+            
             let pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2)+ Math.pow(velocity[2], 2);
             
             if((lastVel/2 > pyVeloc && lastVel > 24 && pyVeloc > 24) && (resp.data.teams[team].players[index].holding_left == "none")&&(resp.data.teams[team].players[index].holding_right == "none")) {
                 tactJs.default.submitRegistered('mur');
-            }
+            } 
             lastVel = pyVeloc
+
+            //Boost 6.56 24.95
+
         }
         
 
         request() //restart request
+
     }).catch(error =>{
         if (error.response) {
             if(error.response.status == 404) {
