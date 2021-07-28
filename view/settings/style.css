@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+body {
+    margin:0;
+    background-color: #393E50;
+    color: white;
+    font-family: 'Montserrat', regular;
+}
+
+.tit {
+    margin:0;
+    padding-top: 14px;
+    font-size: 21px;
+}
+
+.tito {
+    padding-top: 7px;
+    padding-left: 2px;
+}
+
+.ver {
+    padding-top: 4px;
+    margin: 0;
+    padding-bottom: 14px;
+    font-size: 18px;
+    float: right;
+}
+
+.right {
+    margin-right: 30px;
+}
+
+
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #2E323E;
+    padding-left: 25px;
+    -webkit-app-region: drag;
+    padding-top: 1px;
+    margin-bottom: 20px;
+}
+
+#appversion {
+    color:#29A2FF;
+}
+
+#green {
+    color:#00D832;
+}
+
+#red {
+    color:#FFBB00;
+}
+
+span {
+    font-size: 17px;
+}
+
+.end {
+    margin-right: 23px;
+}
+
+.box {
+    background-color: #46506D;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 20px;
+    display: flex;
+    margin: 5px 25px;
+    align-items: center;
+    margin-bottom: 20px;
+    justify-content: space-between;
+}
+
+.btn {
+    background-color: #29A2FF;
+    padding-top: 8px;
+    padding-right: 23px;
+    padding-bottom: 8px;
+    font-size: 15px;
+    padding-left: 23px;
+    text-align: center;
+}
+
+
+
+p {
+    font-size: 20px;
+}
+
+.footer {
+    margin-right: 13px;
+    margin-left: 25px;
+}
+
+.outline {
+    margin-left: 13px;
+    background-color: #393E50 !important;
+    border: white solid 3px;
+}
+
+.reset {
+    color: #FFBB00;
+    border: #FFBB00 solid 3px;
+    background-color: #393E50 !important;
+}
+
+.foot {
+    margin-top: 49px;
+    display: flex;
+    align-items: center;
+
+}
+
+#save {
+    border: #29A2FF solid 3px;
+}
+
+.btnFoot {
+    background-color: #29A2FF;
+    padding-top: 13px;
+    padding-right: 79px;
+    padding-bottom: 13px;
+    padding-left: 78px;
+    text-align: center;
+}
+
+
+
+input[type='range'] {
+    -webkit-appearance: none !important;
+    background:white;
+    height:7px;
+}
+
+input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    background:#29A2FF;
+    height:22px;
+    width:7px;
+}
+

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="./renderer.js"></script>
+    <script src="../../js/api.js"></script>
+  </head>
+  <body>
+    <div class="header">
+      <p class="tit">Echo Arena VR</p>
+      <p class="ver">Version <span id="appversion"></span></p>
+    </div>
+
+    <div class="main">
+      <div class="line">
+        <a class="title">BhapticPlayer</a>
+        <div class="box">
+          <a><span id="statusHaptic" style="color:#FFBB00;">Not Running !</span></a>
+        </div>
+      </div>
+      <div class="line">
+        <a class="title">IP</a>
+        <div class="box">
+          <a><span id="statusIP" style="color:#FFBB00;">Not Set !</span></a>
+        </div>
+      </div>
+      <div class="line">
+        <a class="title">Playername</a>
+        <div class="box">
+          <a><span id="statusName" style="color:#FFBB00;">Not Set !</span></a>
+        </div>
+      </div>
+      <div class="line">
+        <a class="title">Options</a>
+        <div class="btn" id="opts">
+          <a>Open settings</a>
+        </div>
+      </div>
+      <div class="line">
+        <a class="title logs">Logs</a>
+        <div class="log" id="logData">
+          <a><span id="logging"></span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="txt">
+      <p class="title">Notice</p>
+      <p>
+        <span id="blue">Bhaptic</span> must be running<br>
+        <span id="blue">API</span> must be enable on <span id="blue">echo arena</span> client
+      </p>
+    </div>
+
+    <div class="foot">
+      <div class="btnFoot footer" id="find">
+        <a>Find IP</a>
+      </div>
+      <div class="btnFoot outline" id="close">
+        <a >Close</a>
+      </div>
+    </div>
+  </body>
+</html>
+
+<!-- 685px 910px -->

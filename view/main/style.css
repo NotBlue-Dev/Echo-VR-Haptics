@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+body {
+    margin:0;
+    background-color: #393E50;
+    color: white;
+    font-family: 'Montserrat', regular;
+}
+
+.header {
+    background-color: #2E323E;
+    padding-left: 25px;
+    -webkit-app-region: drag;
+}
+
+.tit {
+    margin:0;
+    padding-top: 14px;
+    font-size: 21px;
+}
+
+.ver {
+    padding-top: 4px;
+    margin: 0;
+    padding-bottom: 14px;
+    font-size: 18px;
+}
+
+span {
+    font-size: 15px;
+}
+
+.main, .txt, .foot {
+    margin:25px;
+}
+
+.line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.box {
+    background-color: #46506D;
+    padding-top: 13px;
+    padding-bottom: 13px;
+    padding-left: 20px;
+    max-width: 449px;
+    width: 100%;
+}
+
+#appversion {
+    color: #29A2FF;
+}
+
+.title {
+    font-size: 20px;
+}
+
+.btn {
+    background-color: #29A2FF;
+    padding-top: 13px;
+    padding-right: 178px;
+    padding-bottom: 13px;
+    padding-left: 177px;
+    text-align: center;
+}
+
+.logs {
+    margin-bottom: 267px;
+}
+
+.log {
+    background-color: #46506D;
+    padding-top: 13px;
+    overflow-y: scroll;
+    height: 275px;
+    width: 448px;
+    padding-left: 20px;
+}
+
+#blue {
+    color:#29A2FF;
+    font-size: 20px;
+}
+
+p {
+    font-size: 20px;
+}
+
+.foot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.footer {
+    margin-right: 11px;
+}
+
+.outline {
+    margin-left: 16px;
+    background-color: #393E50 !important;
+    border: white solid 3px;
+}
+
+.btnFoot {
+    background-color: #29A2FF;
+    padding-top: 13px;
+    padding-right: 127px;
+    padding-bottom: 13px;
+    padding-left: 124px;
+    text-align: center;
+}
