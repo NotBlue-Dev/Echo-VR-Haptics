@@ -94,12 +94,12 @@ function request() {
         if(player.stunned == true && stun == false && options.stunned == true) {
             stun = true;
             console.log('stun')
-            tactJs.default.submitRegistered('stunned');
+            tactJs.default.submitRegistered('stunned')
             setTimeout(() => {
                 stun = false;
             }, 3000);
         } 
-
+        
         //someone grab my back ?
         for(let i in resp.data.teams[0].players) {
             if((resp.data.teams[0].players[i].holding_right == playerid || resp.data.teams[0].players[i].holding_left == playerid) && resp.data.game_status == "playing" && options.grab == true) {

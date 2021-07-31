@@ -3,8 +3,9 @@ const win = remote.BrowserWindow.getFocusedWindow();
 const fs = require('fs')
 const bhaptic = require('../../js/tact.js');
 const tactJs = require('../../js/tact-js/tact-js.umd.js')
+const path = require('path');
 
-let config = JSON.parse(fs.readFileSync('./config.json', 'utf8'))
+let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
 let index;
 
 const replaceText = (selector, text) => {
@@ -22,11 +23,11 @@ bhaptic().then((txt) => {
 
 window.addEventListener('DOMContentLoaded', () => {
 
-    fs.readFile('./package.json', 'utf8', function(err, data){
+    fs.readFile(path.join(__dirname, '../../package.json'), 'utf8', function(err, data){
         replaceText('#appversion', JSON.parse(data).version)
     });
 
-    function createBox(names, file, status, intens) {
+    function createBox(names, file, status, intens, lock) {
         let box = document.createElement("div");
         box.setAttribute('class', 'box');
 
@@ -84,20 +85,30 @@ window.addEventListener('DOMContentLoaded', () => {
             options.id = "red"
             options.textContent="disable";
         }
+
+        //remove condition lock when everything will be implemented
+        if(lock == true) {
+            options.id = "red"
+            options.textContent="Not Yet";
+        }
+
         
 
 
         //NEED TO SAVE
         options.addEventListener('click', e => {
             index = config.files.findIndex(x=>x.name === names)
-            if(options.id == 'green') {
-                options.textContent='disable';
-                options.id = "red"
-                config.files[index].state = false
-            } else {
-                options.textContent='enable';
-                options.id = "green"
-                config.files[index].state = true
+            //remove condition not yet when everything will be implemented
+            if(options.textContent!="Not Yet") {
+                if(options.id == 'green') {
+                    options.textContent='disable';
+                    options.id = "red"
+                    config.files[index].state = false
+                } else {
+                    options.textContent='enable';
+                    options.id = "green"
+                    config.files[index].state = true
+                }
             }
             
             
@@ -109,13 +120,13 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     config.files.forEach((value) => {
-        createBox(value.name, value.file, value.state, value.intens)
+        createBox(value.name, value.file, value.state, value.intens, value.lock)
     })
 
     let save = document.querySelector('#save')
 
     save.addEventListener('click', e => {
-        fs.writeFile('./config.json', JSON.stringify(config), (err) => {
+        fs.writeFile(path.join(__dirname, '../../config.json'), JSON.stringify(config), (err) => {
             if (err) console.error;
         });
         window.location.href = "../main/index.html";
@@ -126,9 +137,10 @@ window.addEventListener('DOMContentLoaded', () => {
     reset.addEventListener('click', e => {
         const div = document.querySelector('#container')
         while(div.firstChild) div.firstChild.remove()
-        config = JSON.parse(fs.readFileSync('./assets/default.json', 'utf8'))
+        config.files = JSON.parse(fs.readFileSync(path.join(__dirname, '../../assets/default.json'), 'utf8'))
+        console.log(config.files)
         config.files.forEach((value) => {
-            createBox(value.name, value.file, value.state, value.intens)
+            createBox(value.name, value.file, value.state, value.intens, value.lock)
         })
     })
 

@@ -34,12 +34,12 @@ function find() {
                     type = r.toLowerCase()
                     if(type == "quest") {
                         for(let i = 1; i<254; i++) {
-                            if(ip == undefined) {
+                            if(ip == undefined || ip == "") {
                                 arp.getMAC(`192.168.1.${i}`, function(err, mac) {
                                     if(err) return;
                                     let a = oui(mac)
                                     try{
-                                        if(a.split(' ')[0] == 'Oculusss') {
+                                        if(a.split(' ')[0] == 'Oculus') {
                                             ip = `192.168.1.${i}`
                                         }
                                     } catch {}

@@ -15,8 +15,9 @@ function connection() {
         tactJs.default.addListener(function(msg) {
             if (msg.status === 'Connected' && connect == false) {
                 connect = true;
+                
                 config.files.forEach((value, index, array) => {
-                    tactJs.default.registerFile(value.name ,fs.readFileSync(`./assets/${value.file}`).toString())
+                    tactJs.default.registerFile(value.name ,fs.readFileSync(path.join(__dirname, `../assets/${value.file}`)).toString())
                 })
                 console.log('Tact file Loaded')
                 resolve(true);

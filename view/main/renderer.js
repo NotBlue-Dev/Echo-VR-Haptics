@@ -4,11 +4,13 @@ const ipFinder = require('../../js/ipFinder.js');
 const bhaptic = require('../../js/tact.js');
 const fs = require('fs')
 const WebSocket = require('ws');
+const path = require('path');
 
 let ip;
 let pseudo;
 let pause = false;
-let config = JSON.parse(fs.readFileSync('./config.json', 'utf8'))
+
+let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
 
 let options = {}
 
@@ -45,7 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
         window.location.href = "../settings/index.html";
     })
 
-    fs.readFile('./package.json', 'utf8', function(err, data){
+    fs.readFile(path.join(__dirname, '../../package.json'), 'utf8', function(err, data){
         replaceText('#appversion', JSON.parse(data).version)
     });
     
