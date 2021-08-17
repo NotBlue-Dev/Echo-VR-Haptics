@@ -13,6 +13,13 @@ let lastVel = 0;
 let block = false;
 let end = false;
 
+let optHeart = {intensity: config.files[config.files.findIndex(x=>x.name === 'heart')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'heart')].dur}
+let optStunned = {intensity: config.files[config.files.findIndex(x=>x.name === 'stunned')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stunned')].dur}
+let optGrab = {intensity: config.files[config.files.findIndex(x=>x.name === 'grab')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'grab')].dur}
+let optGoal = {intensity: config.files[config.files.findIndex(x=>x.name === 'goal')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'goal')].dur}
+let optShield = {intensity: config.files[config.files.findIndex(x=>x.name === 'shield')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'shield')].dur}
+let optWall = {intensity: config.files[config.files.findIndex(x=>x.name === 'wall')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'wall')].dur}
+
 function playId() {
     //get player in json
     axios.get(`http://${ip}:6721/session`).then(resp => { 
@@ -65,14 +72,16 @@ function request() {
         console.log(`Connected to ${ip}, Echo Arena API, logging ${pseudo}`)
         playId()
     } else if ((resp.data.match_type == 'Echo_Arena' || resp.data.match_type == 'Echo_Arena_Private') && pause == false) {
+        
         //player left ? on actu
         if(teamlen != resp.data.teams[team].players.length) playId()
         //refresh
         let player = resp.data.teams[team].players[index]
         //end game ? 
+
         let clock = resp.data.game_clock_display.split('.')[0].replace(":", ".")
         clock = clock.replace(clock.charAt(0), '')
-        let floatClock = +(clock)
+        let floatClock =+ (clock)
 
         if (floatClock<0.30 && end == false && resp.data.game_status == "playing" && options.heart == true) {
             console.log('heartbeat')
@@ -80,7 +89,7 @@ function request() {
             
             let heartBeat = setInterval(() => {
                 if(resp.data.game_status != "playing") clearInterval(heartBeat)
-                tactJs.default.submitRegistered('heart');
+                tactJs.default.submitRegisteredWithScaleOption('heart', optHeart);
             },800);
 
             setTimeout(() => {
@@ -94,7 +103,7 @@ function request() {
         if(player.stunned == true && stun == false && options.stunned == true) {
             stun = true;
             console.log('stun')
-            tactJs.default.submitRegistered('stunned')
+            tactJs.default.submitRegisteredWithScaleOption('stunned', optStunned)
             setTimeout(() => {
                 stun = false;
             }, 3000);
@@ -103,13 +112,13 @@ function request() {
         //someone grab my back ?
         for(let i in resp.data.teams[0].players) {
             if((resp.data.teams[0].players[i].holding_right == playerid || resp.data.teams[0].players[i].holding_left == playerid) && resp.data.game_status == "playing" && options.grab == true) {
-                tactJs.default.submitRegistered('grab');
+                tactJs.default.submitRegisteredWithScaleOption('grab', optGrab);
             }
         }
 
         for(let i in resp.data.teams[1].players) {
             if((resp.data.teams[1].players[i].holding_right == playerid || resp.data.teams[1].players[i].holding_left == playerid) && resp.data.game_status == "playing" && options.grab == true) {
-                tactJs.default.submitRegistered('grab');
+                tactJs.default.submitRegisteredWithScaleOption('grab', optGrab);
             }
         }
     
@@ -117,7 +126,7 @@ function request() {
         //point score ?
 
         if((orangepoints != resp.data.orange_points || bluepoints != resp.data.blue_points) && options.goal == true) {
-            tactJs.default.submitRegistered('goal');
+            tactJs.default.submitRegisteredWithScaleOption('goal', optGoal);
             bluepoints = resp.data.blue_points
             console.log('goal')
             orangepoints = resp.data.orange_points    
@@ -127,7 +136,7 @@ function request() {
         if(player.blocking == true && block == false && options.shield == true) {
             block = true;
             console.log('blocking')
-            tactJs.default.submitRegistered('shield');
+            tactJs.default.submitRegisteredWithScaleOption('shield', optShield);
             setTimeout(() => {
                 block = false;
             }, 400);
@@ -137,7 +146,7 @@ function request() {
 
         // if(player.stats.stuns != stuns && options.stun == true) {
         //     stuns = player.stats.stuns;
-        //     tactJs.default.submitRegistered('stun');
+        //     tactJs.default.submitRegisteredWithScaleOption('stun');
         // }
 
         //hit a wall ?
@@ -147,7 +156,7 @@ function request() {
         let pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2)+ Math.pow(velocity[2], 2);
 
         if((lastVel/2 > pyVeloc && lastVel > 24 && pyVeloc > 24) && (resp.data.teams[team].players[index].holding_left == "none")&&(resp.data.teams[team].players[index].holding_right == "none") && options.wall == true) {
-            tactJs.default.submitRegistered('wall');
+            tactJs.default.submitRegisteredWithScaleOption('wall', optWall);
             console.log('hit wall')
         } 
         lastVel = pyVeloc

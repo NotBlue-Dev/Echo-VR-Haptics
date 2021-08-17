@@ -65,11 +65,19 @@ window.addEventListener('DOMContentLoaded', () => {
             playId(true)
             check(false)
             pause = false;
-            
+        }).catch((err)=> {
+            if(err == 'cancel') {
+                ip = config.ip
+                pseudo = config.pseudo
+            } else {
+                ip = err
+                pseudo = config.pseudo
+                playId(true)
+                check(false)
+                pause = false;
+            }
         })
     });
-
-
 
     //logging
     (function () {
@@ -90,7 +98,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     })();
 })
-
 
 let ipState = false;
 let nickState = false;

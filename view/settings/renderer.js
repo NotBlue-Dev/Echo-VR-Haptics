@@ -67,7 +67,9 @@ window.addEventListener('DOMContentLoaded', () => {
         let node = document.createTextNode("Play");
 
         btn.addEventListener('click', e => {
-            tactJs.default.submitRegistered(names)
+            index = config.files.findIndex(x=>x.name === names)
+            opt = {intensity: config.files[index].intens, duration: config.files[index].dur};
+            tactJs.default.submitRegisteredWithScaleOption(names, opt)
         })
 
         txt.appendChild(node);

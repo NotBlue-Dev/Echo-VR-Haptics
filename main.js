@@ -7,19 +7,20 @@ function createWindow () {
   const mainWindow = new BrowserWindow({
     width:685,
     height:850,
+    resizable:false,
     minimizable : false,
     maximizable : false,
     autoHideMenuBar: true,
     webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        enableRemoteModule: true,
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
     },
     frame:false
   })
 
   mainWindow.loadFile('./view/main/index.html')
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 }
 
 app.whenReady().then(() => {
