@@ -1,16 +1,39 @@
 # Echo-VR-Haptics
 
-to run `node main.js`
+## What is that ?
 
-Bhaptic player need to be installed and API acces need to be enable in echo arena
+Echo VR Haptics is an API based project, allowing you to use bhaptics products with echo arena
 
-Not working in lobby and combat /!\
+## Compatibility
 
-Integration :
+Curently :
+- X40
+- X16
 
-- Stunned
-- Blocking
-- Goal scored
-- Hitting a wall (fast)
-- being grab by someone
-- HeartBeat when the game is ending
+Coming soon :
+- Arms
+- Face
+
+## Event Feedback
+
+- STUNNED
+- GOAL
+- GRAB
+- HIT WALL
+- BLOCKING
+- HEARTBEAT
+
+Coming Soon :
+
+- BREAK
+- BOOST
+
+## Issues
+
+Your bhaptics player is running but it's saying it's not ?
+- Restart the app 
+
+## Custom tact Files
+
+go to ```resources/app/assets/```
+Then you can change tact files but you need to keep the same name !!
