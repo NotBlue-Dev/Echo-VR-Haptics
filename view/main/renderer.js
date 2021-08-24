@@ -62,8 +62,7 @@ window.addEventListener('DOMContentLoaded', () => {
         ipFinder().then((obj)=> {
             ip = obj.ip;
             pseudo = obj.pseudo;
-            playId(true)
-            check(false)
+            win.reload()
             pause = false;
         }).catch((err)=> {
             if(err == 'cancel') {
@@ -112,7 +111,6 @@ function check(bool) {
         element.style.color = '#00D832'
         hapticState = true;
         if(hapticState && nickState && ipState && bool == true) {
-            console.log(team)
             request()
         }
     });
@@ -130,7 +128,7 @@ function check(bool) {
         ipState = true;
     }
     
-    if(config.pseudo != undefined && config.pseudo != '') {
+    if(config.pseudo != undefined && config.pseudo != '' && checks != false) {
         replaceText('#statusName', config.pseudo )
         let element = document.querySelector('#statusName')
         element.style.color = '#00D832'

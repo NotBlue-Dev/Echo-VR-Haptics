@@ -13,6 +13,7 @@ let lastVel = 0;
 let block = false;
 let end = false;
 let statuss;
+let checks;
 
 let optHeart = {intensity: config.files[config.files.findIndex(x=>x.name === 'heart')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'heart')].dur}
 let optStunned = {intensity: config.files[config.files.findIndex(x=>x.name === 'stunned')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stunned')].dur}
@@ -49,6 +50,7 @@ function playId() {
                     let element = document.querySelector('#statusName')
                     element.style.color = '#FFBB00'
                     console.log('PSEUDO NOT IN GAME')
+                    checks = false;
                 }
             }
             
