@@ -5,6 +5,8 @@ body {
     background-color: #393E50;
     color: white;
     font-family: 'Montserrat', regular;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 .header {
@@ -74,7 +76,7 @@ span {
 .log {
     background-color: #46506D;
     padding-top: 13px;
-    overflow-y: scroll;
+    overflow-y: scroll !important;
     height: 275px;
     width: 448px;
     padding-left: 20px;
