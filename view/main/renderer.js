@@ -112,6 +112,7 @@ function check(bool) {
         element.style.color = '#00D832'
         hapticState = true;
         if(hapticState && nickState && ipState && bool == true) {
+            console.log(team)
             request()
         }
     });

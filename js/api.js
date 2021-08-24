@@ -12,6 +12,7 @@ let teamlen;
 let lastVel = 0;
 let block = false;
 let end = false;
+let statuss;
 
 let optHeart = {intensity: config.files[config.files.findIndex(x=>x.name === 'heart')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'heart')].dur}
 let optStunned = {intensity: config.files[config.files.findIndex(x=>x.name === 'stunned')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stunned')].dur}
@@ -78,24 +79,19 @@ function request() {
         //refresh
         let player = resp.data.teams[team].players[index]
         //end game ? 
+        statuss = resp.data.game_status;
 
         let clock = resp.data.game_clock_display.split('.')[0].replace(":", ".")
         clock = clock.replace(clock.charAt(0), '')
         let floatClock =+ (clock)
-
         if (floatClock<0.30 && end == false && resp.data.game_status == "playing" && options.heart == true) {
             console.log('heartbeat')
             end = true;
             
             let heartBeat = setInterval(() => {
-                if(resp.data.game_status != "playing") clearInterval(heartBeat)
+                if(statuss != "playing") clearInterval(heartBeat), end = false;
                 tactJs.default.submitRegisteredWithScaleOption('heart', optHeart);
             },800);
-
-            setTimeout(() => {
-                end = false;
-                clearInterval(heartBeat)
-            }, 30000);
         }
 
         //stunned ? 
