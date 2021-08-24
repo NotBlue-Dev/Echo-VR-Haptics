@@ -95,6 +95,9 @@ p {
     align-items: center;
 }
 
+#popup {
+    display: none;
+}
 
 .footer {
     margin-right: 11px;

@@ -116,6 +116,12 @@ function check(bool) {
         }
     });
 
+    ws.on('error', (error) => {
+        replaceText('#statusHaptic', 'Not Running !')
+        let element = document.querySelector('#statusHaptic')
+        element.style.color = '#FFBB00'
+    })
+
     if(config.ip != undefined && config.ip != '') {
         replaceText('#statusIP', config.ip )
         let element = document.querySelector('#statusIP')
@@ -129,6 +135,8 @@ function check(bool) {
         element.style.color = '#00D832'
         nickState = true;
     }
-    
 }
 
+setInterval(() => {
+    check(false)
+}, 3000);

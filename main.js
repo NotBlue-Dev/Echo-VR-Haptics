@@ -16,11 +16,13 @@ function createWindow () {
       contextIsolation: false,
       enableRemoteModule: true,
     },
-    frame:false
+    frame:false,
+    title:'haptic',
   })
-
   mainWindow.loadFile('./view/main/index.html')
-  // mainWindow.webContents.openDevTools()
+  // Uncomment for Dev Version
+  mainWindow.webContents.openDevTools()
+  
 }
 
 app.whenReady().then(() => {
