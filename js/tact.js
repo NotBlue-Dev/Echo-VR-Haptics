@@ -2,7 +2,6 @@ const tactJs = require('./tact-js/tact-js.umd.js')
 const fs = require('fs')
 let connect = false;
     
-
 module.exports = function() {
     return connection()
 }

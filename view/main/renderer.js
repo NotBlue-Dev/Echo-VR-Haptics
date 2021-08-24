@@ -4,6 +4,7 @@ const ipFinder = require('../../js/ipFinder.js');
 const bhaptic = require('../../js/tact.js');
 const fs = require('fs')
 const WebSocket = require('ws');
+
 const path = require('path');
 
 let ip;
@@ -103,6 +104,7 @@ let nickState = false;
 let hapticState = false;
 
 function check(bool) {
+
     const ws = new WebSocket('ws://127.0.0.1:15881/v2/feedbacks?app_id=com.bhaptics.designer2&app_name=bHaptics Designer');
 
     ws.on('open', function open() {
@@ -134,6 +136,10 @@ function check(bool) {
         element.style.color = '#00D832'
         nickState = true;
     }
+
+    setTimeout(() => {
+        ws.close()
+    }, 1000);
 }
 
 setInterval(() => {

@@ -134,7 +134,7 @@ function request() {
         if(player.blocking == true && block == false && options.shield == true) {
             block = true;
             console.log('blocking')
-            tactJs.default.submitRegisteredWithScaleOption('shield', optShield);
+            tactJs.default.submitRegisteredWithScaleOption('shield', optShield)
             setTimeout(() => {
                 block = false;
             }, 400);
