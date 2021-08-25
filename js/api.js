@@ -7,13 +7,18 @@ let playerid;
 let orangepoints;
 let bluepoints;
 let stun = false;
-let stuns;
+let stunned = false;
 let teamlen;
 let lastVel = 0;
 let block = false;
+let boost = false;
 let end = false;
 let statuss;
 let checks;
+let tempVeloc;
+let tempVelocMax;
+let pyVeloc;
+let Ti;
 
 let optHeart = {intensity: config.files[config.files.findIndex(x=>x.name === 'heart')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'heart')].dur}
 let optStunned = {intensity: config.files[config.files.findIndex(x=>x.name === 'stunned')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stunned')].dur}
@@ -21,6 +26,8 @@ let optGrab = {intensity: config.files[config.files.findIndex(x=>x.name === 'gra
 let optGoal = {intensity: config.files[config.files.findIndex(x=>x.name === 'goal')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'goal')].dur}
 let optShield = {intensity: config.files[config.files.findIndex(x=>x.name === 'shield')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'shield')].dur}
 let optWall = {intensity: config.files[config.files.findIndex(x=>x.name === 'wall')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'wall')].dur}
+
+
 
 function playId() {
     //get player in json
@@ -56,7 +63,6 @@ function playId() {
             
         }
 
-        
         playerid = resp.data.teams[team].players[index].playerid;
         stuns = resp.data.teams[team].players[index].stats.stuns
         orangepoints = resp.data.orange_points;
@@ -64,6 +70,12 @@ function playId() {
 
         pause = false;
         
+        if(team == 0) {
+            Ti = 1
+        } else {
+            Ti = 0
+        }
+
     })
 }
 
@@ -97,13 +109,13 @@ function request() {
         }
 
         //stunned ? 
-
-        if(player.stunned == true && stun == false && options.stunned == true) {
-            stun = true;
-            console.log('stun')
+        
+        if(player.stunned == true && stunned == false && options.stunned == true) {
+            stunned = true;
+            console.log('stunned')
             tactJs.default.submitRegisteredWithScaleOption('stunned', optStunned)
             setTimeout(() => {
-                stun = false;
+                stunned = false;
             }, 3000);
         } 
         
@@ -142,16 +154,28 @@ function request() {
 
         //stun smone ? #Broken#
 
-        // if(player.stats.stuns != stuns && options.stun == true) {
-        //     stuns = player.stats.stuns;
-        //     tactJs.default.submitRegisteredWithScaleOption('stun');
-        // }
+        if(options.stun != true && stun == false) {
+            stun = true;
+            playerPos = resp.data.teams[team].players[index].head.position
+            for(let i in resp.data.teams[Ti].players) {
+                EnemyPos = resp.data.teams[Ti].players[i].head.position
+                if((playerPos[0] >= EnemyPos[0]-1 && playerPos[0] <= EnemyPos[0]+1) && (playerPos[1] >= EnemyPos[1]-1 && playerPos[1] <= EnemyPos[1]+1) && (playerPos[2] >= EnemyPos[2]-1 && playerPos[2] <= EnemyPos[2]+1)) {
+                    if(resp.data.teams[Ti].players[i].stunned) {
+                        console.log('STUN')
+                    }
+                }
+            }
+            setTimeout(() => {
+                stun = false;
+            }, 1000);
+            // tactJs.default.submitRegisteredWithScaleOption('stun');
+        }
 
         //hit a wall ?
 
         let velocity = resp.data.teams[team].players[index].velocity
 
-        let pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2)+ Math.pow(velocity[2], 2);
+        pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2)+ Math.pow(velocity[2], 2);
 
         if((lastVel/2 > pyVeloc && lastVel > 24 && pyVeloc > 24) && (resp.data.teams[team].players[index].holding_left == "none")&&(resp.data.teams[team].players[index].holding_right == "none") && options.wall == true) {
             tactJs.default.submitRegisteredWithScaleOption('wall', optWall);
@@ -161,6 +185,23 @@ function request() {
 
         //Boost 6.56 24.95
 
+        if (tempVeloc > 25) tempVeloc = 25
+        
+        if(!(pyVeloc >= 25) && (pyVeloc >= tempVeloc -0.12 && pyVeloc <= tempVeloc +0.12) && boost == false) {
+            boost = true;
+            console.log('boost 1 ')
+            setTimeout(() => {
+                boost = false;
+            }, 1100);
+        }
+
+        if(!(pyVeloc >= 25) && (pyVeloc >= tempVelocMax -0.12 && pyVeloc <= tempVelocMax +0.12) && boost == false) {
+            boost = true;
+            console.log('boost 2 ')
+            setTimeout(() => {
+                boost = false;
+            }, 1000);
+        }
     }
 
     request() //restart request
@@ -170,16 +211,13 @@ function request() {
             if (error.response) {
                 if(error.response.status == 404) {
                     console.log('in Menu/Loading or invalid IP')
-                    setTimeout(() => {
-                        
-                    }, );
                 } else {
                     console.log(error.response.status)
                 }
             } else if (error.request) {
                 console.log('Connection refused, game running ?');
             } else {
-                console.log('Error', error.message);
+                console.log('Error', error);
             }
         }
 
@@ -190,3 +228,8 @@ function request() {
         }, 5000);
     })
 }
+
+setInterval(() => {
+    tempVeloc = pyVeloc + 6.56
+    tempVelocMax = pyVeloc + 18.37
+}, 1200)

@@ -97,6 +97,7 @@ window.addEventListener('DOMContentLoaded', () => {
             
         }
     })();
+
 })
 
 let ipState = false;
@@ -139,7 +140,7 @@ function check(bool) {
 
     setTimeout(() => {
         ws.close()
-    }, 1000);
+    }, 3000);
 }
 
 setInterval(() => {

@@ -50,7 +50,7 @@ function find() {
                                 prompt({
                                     title: "Can't find IP, enter manually",
                                     label: 'Enter Quest IP',
-                                    value: 'eg: 192.168.1.53',
+                                    value: '',
                                     type: 'input'
                                 })
                                 .then((r) => {
