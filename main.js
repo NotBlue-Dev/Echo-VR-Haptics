@@ -20,8 +20,8 @@ function createWindow () {
     title:'haptic',
   })
   mainWindow.loadFile('./view/main/index.html')
-  // Uncomment for Dev Version
-  mainWindow.webContents.openDevTools()
+  // comment for prod Version
+  //mainWindow.webContents.openDevTools()
   
 }
 

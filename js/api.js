@@ -11,12 +11,13 @@ let stunned = false;
 let teamlen;
 let lastVel = 0;
 let block = false;
-let boost = false;
+let boost1 = false;
+let boost2 = false;
 let end = false;
 let statuss;
 let checks;
 let tempVeloc;
-let tempVelocMax;
+let tempVelocMax = 24.95
 let pyVeloc;
 let Ti;
 
@@ -26,7 +27,8 @@ let optGrab = {intensity: config.files[config.files.findIndex(x=>x.name === 'gra
 let optGoal = {intensity: config.files[config.files.findIndex(x=>x.name === 'goal')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'goal')].dur}
 let optShield = {intensity: config.files[config.files.findIndex(x=>x.name === 'shield')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'shield')].dur}
 let optWall = {intensity: config.files[config.files.findIndex(x=>x.name === 'wall')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'wall')].dur}
-
+let optBoost = {intensity: config.files[config.files.findIndex(x=>x.name === 'boost')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'boost')].dur}
+let optStun = {intensity: config.files[config.files.findIndex(x=>x.name === 'stun')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stun')].dur}
 
 
 function playId() {
@@ -154,21 +156,21 @@ function request() {
 
         //stun smone ? #Broken#
 
-        if(options.stun != true && stun == false) {
-            stun = true;
+        if(options.stun == true && stun == false) {
             playerPos = resp.data.teams[team].players[index].head.position
             for(let i in resp.data.teams[Ti].players) {
                 EnemyPos = resp.data.teams[Ti].players[i].head.position
                 if((playerPos[0] >= EnemyPos[0]-1 && playerPos[0] <= EnemyPos[0]+1) && (playerPos[1] >= EnemyPos[1]-1 && playerPos[1] <= EnemyPos[1]+1) && (playerPos[2] >= EnemyPos[2]-1 && playerPos[2] <= EnemyPos[2]+1)) {
                     if(resp.data.teams[Ti].players[i].stunned) {
                         console.log('STUN')
+                        stun = true;
+                        tactJs.default.submitRegisteredWithScaleOption('stun', optStun);
+                        setTimeout(() => {
+                            stun = false;
+                        }, 1000);
                     }
                 }
             }
-            setTimeout(() => {
-                stun = false;
-            }, 1000);
-            // tactJs.default.submitRegisteredWithScaleOption('stun');
         }
 
         //hit a wall ?
@@ -185,23 +187,23 @@ function request() {
 
         //Boost 6.56 24.95
 
-        if (tempVeloc > 25) tempVeloc = 25
-        
-        if(!(pyVeloc >= 25) && (pyVeloc >= tempVeloc -0.12 && pyVeloc <= tempVeloc +0.12) && boost == false) {
-            boost = true;
-            console.log('boost 1 ')
-            setTimeout(() => {
-                boost = false;
-            }, 1100);
-        }
+        if (tempVeloc > 25) tempVeloc = 24.94
+        if (tempVelocMax > 25) tempVeloc = 24.94
 
-        if(!(pyVeloc >= 25) && (pyVeloc >= tempVelocMax -0.12 && pyVeloc <= tempVelocMax +0.12) && boost == false) {
-            boost = true;
-            console.log('boost 2 ')
+        if(!(pyVeloc >= 24.94) && (pyVeloc >= tempVeloc -0.12 && pyVeloc <= tempVeloc +0.12) && boost1 == false) {
+            boost1 = true;
+            tactJs.default.submitRegisteredWithScaleOption('boost', optBoost);
             setTimeout(() => {
-                boost = false;
+                boost1 = false;
             }, 1000);
         }
+
+        if((pyVeloc >= tempVelocMax -0.12 && pyVeloc <= tempVelocMax +0.12) && boost2 == false) {
+            boost2 = true;
+            tactJs.default.submitRegisteredWithScaleOption('boost', optBoost);
+            
+        }
+        if(pyVeloc < 24.94) boost2 = false;
     }
 
     request() //restart request
@@ -231,5 +233,4 @@ function request() {
 
 setInterval(() => {
     tempVeloc = pyVeloc + 6.56
-    tempVelocMax = pyVeloc + 18.37
-}, 1200)
+}, 50)
