@@ -1,15 +1,12 @@
-const {remote} = require('electron');
+const { remote, ipcRenderer } = require('electron');
 const win = remote.BrowserWindow.getFocusedWindow();
-const ipFinder = require('../../js/ipFinder.js');
-const bhaptic = require('../../js/tact.js');
 const fs = require('fs')
-const WebSocket = require('ws');
 
 const path = require('path');
+const prompt = require("electron-prompt");
 
 let ip;
 let pseudo;
-let pause = false;
 
 let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
 
@@ -22,25 +19,31 @@ config.files.forEach((value) => {
 ip = config.ip;
 pseudo = config.pseudo;
 
-bhaptic().then((txt) => {
-    if(txt != true) {
-        console.log('Bhaptic player as an issue');  
-    } else {
-        console.log('Connected to Bhaptic Player')
-    }
-})
-
 //electron
 
-const replaceText = (selector, text) => {
+const replaceText = (selector, text, color) => {
     const element = document.querySelector(selector)
-    if (element) element.innerText = text
+    element && (element.innerText = text)
+    element && color && (element.style.color = color)
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+const logInElement = (console, element) => {
+    if (!console) {
+        console = {};
+    }
+    console.log = function (message) {
+        let d = new Date();
+        let n = d.toLocaleTimeString();
+        if (typeof message == 'object') {
+            element.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : String(message)) + '<br />';
+        } else {
+            element.innerHTML += "[" + n + "] " + message + '<br />';
+        }
+    }
+};
 
-    //check if bhaptic player reply to ping
-    check(true)
+window.addEventListener('DOMContentLoaded', () => {
+    logInElement(console, document.getElementById('logging'))
 
     let opts = document.querySelector('#opts')
 
@@ -59,90 +62,93 @@ window.addEventListener('DOMContentLoaded', () => {
 
     let find = document.querySelector("#find");
     find.addEventListener("click", () => {
-        pause = true;
-        ipFinder().then((obj)=> {
-            ip = obj.ip;
-            pseudo = obj.pseudo;
-            win.reload()
-            pause = false;
-        }).catch((err)=> {
-            if(err == 'cancel') {
-                ip = config.ip
-                pseudo = config.pseudo
-            } else {
-                ip = err
-                pseudo = config.pseudo
-                playId(true)
-                check(false)
-                pause = false;
-            }
+        prompt({
+            title: 'Quest or PC',
+            label: 'Enter your device (Quest or PC)',
+            value: '',
+            type: 'input'
+        }).then((response) => {
+            const body = document.querySelector("#body");
+            body && (body.style.cursor = "progress");
+            ipcRenderer.send('find-ip', response)
         })
     });
 
-    //logging
-    (function () {
-        if (!console) {
-            console = {};
-        }
-        const old = console.log;
-        const loggers = document.querySelector('#logging');
-        console.log = function (message) {
-            let d = new Date();
-            let n = d.toLocaleTimeString();
-            if (typeof message == 'object') {
-                loggers.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : String(message)) + '<br />';
-            } else {
-                loggers.innerHTML += "[" + n + "] " + message + '<br />';
-            }
-            
-        }
-    })();
-
-})
-
-let ipState = false;
-let nickState = false;
-let hapticState = false;
-
-function check(bool) {
-
-    const ws = new WebSocket('ws://127.0.0.1:15881/v2/feedbacks?app_id=com.bhaptics.designer2&app_name=bHaptics Designer');
-
-    ws.on('open', function open() {
-        replaceText('#statusHaptic', 'Running and ready to go')
-        let element = document.querySelector('#statusHaptic')
-        element.style.color = '#00D832'
-        hapticState = true;
-        if(hapticState && nickState && ipState && bool == true) {
-            request()
-        }
-    });
-
-    ws.on('error', (error) => {
-        replaceText('#statusHaptic', 'Not Running !')
-        let element = document.querySelector('#statusHaptic')
-        element.style.color = '#FFBB00'
+    ipcRenderer.on('tact-device-connecting', (event, arg) => {
+        console.log('Connecting…')
     })
 
-    if(config.ip != undefined && config.ip != '') {
-        replaceText('#statusIP', config.ip )
-        let element = document.querySelector('#statusIP')
-        element.style.color = '#00D832'
-        ipState = true;
-    }
-    
-    if(config.pseudo != undefined && config.pseudo != '' && checks != false) {
-        replaceText('#statusName', config.pseudo )
-        let element = document.querySelector('#statusName')
-        element.style.color = '#00D832'
-        nickState = true;
-    }
+    ipcRenderer.on('tact-device-connected', (event, arg) => {
+        console.log('Connected to Bhaptic Player')
+        replaceText('#statusHaptic', 'Running and ready to go', '#00D832')
+    })
 
-    setTimeout(() => {
-        ws.close()
-    }, 3000);
-}
+    ipcRenderer.on('tact-device-disconnected', (event, arg) => {
+        console.log('/!\\ Disconnected')
+        replaceText('#statusHaptic', 'Not Running !', '#FFBB00')
+    })
 
-setInterval(() => {
-    check(false)
-}, 3000);
+    ipcRenderer.on('tact-device-fileLoaded', (event, arg) => {
+        console.log(`File loaded ${arg}`)
+    })
+
+    ipcRenderer.on('game-ip-defined', (event, arg) => {
+        replaceText('#statusIP', arg, '#00D832')
+        ipcRenderer.send('save-config')
+        prompt({
+            title: 'playername',
+            label: 'Enter your oculus playername',
+            value: '',
+            type: 'input'
+        }).then((response) => {
+            ipcRenderer.send('define-nickName', response)
+        })
+    })
+
+    ipcRenderer.on('game-ip-bad-defined', (event, arg) => {
+        replaceText('#statusIP', arg, '#ff3920')
+        ipcRenderer.send('save-config')
+    })
+
+    ipcRenderer.on('nick-name-defined', (event, arg) => {
+        replaceText('#statusName', arg, '#00D832')
+        console.log(`playername is ${arg}`)
+        ipcRenderer.send('save-config')
+    })
+
+    ipcRenderer.on('find-ip-canceled', (event, arg) => {
+        console.log('canceled')
+        const body = document.querySelector("#body");
+        body && (body.style.cursor = "default");
+        console.log('user cancelled')
+    })
+
+    ipcRenderer.on('find-ip-failed', (event, arg) => {
+        console.log('failed')
+        console.log(arg)
+        const body = document.querySelector("#body");
+        body && (body.style.cursor = "default");
+        prompt({
+            title: "Can't find IP, enter manually",
+            label: 'Enter Quest IP',
+            value: '',
+            type: 'input'
+        }).then((response) => {
+            ipcRenderer.send('define-ip', response)
+        })
+    })
+
+    ipcRenderer.on('find-ip-timeout', (event, arg) => {
+        console.log('timeout')
+        const body = document.querySelector("#body");
+        body && (body.style.cursor = "default");
+        prompt({
+            title: "Can't find IP, enter manually",
+            label: 'Enter Quest IP',
+            value: '',
+            type: 'input'
+        }).then((response) => {
+            ipcRenderer.send('define-ip', response)
+        })
+    })
+})

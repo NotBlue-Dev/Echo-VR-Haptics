@@ -1,4 +1,3 @@
-const tactJs = require('../../js/tact-js/tact-js.umd.js');
 const axios = require('axios');
 const fs = require("fs");
 const path = require("path");
@@ -22,7 +21,7 @@ let tempVeloc;
 let tempVelocMax = 24.95
 let pyVeloc;
 let Ti;
-let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
+let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../config.json'), 'utf8'))
 
 let optHeart = {intensity: config.files[config.files.findIndex(x=>x.name === 'heart')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'heart')].dur}
 let optStunned = {intensity: config.files[config.files.findIndex(x=>x.name === 'stunned')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stunned')].dur}
@@ -32,6 +31,9 @@ let optShield = {intensity: config.files[config.files.findIndex(x=>x.name === 's
 let optWall = {intensity: config.files[config.files.findIndex(x=>x.name === 'wall')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'wall')].dur}
 let optBoost = {intensity: config.files[config.files.findIndex(x=>x.name === 'boost')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'boost')].dur}
 let optStun = {intensity: config.files[config.files.findIndex(x=>x.name === 'stun')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stun')].dur}
+
+
+
 
 function playId() {
     //get player in json
@@ -83,20 +85,29 @@ function playId() {
     })
 }
 
-function request() {
+function request(tactPlay) {
     
     axios.get(`http://${ip}:6721/session`).then(resp => { 
 
-    if(team == undefined && (resp.data.match_type == 'Echo_Arena' || resp.data.match_type == 'Echo_Arena_Private') && pause == false) {
-        console.log(`Connected to ${ip}, Echo Arena API, logging ${pseudo}`)
-        playId()
-    } else if ((resp.data.match_type == 'Echo_Arena' || resp.data.match_type == 'Echo_Arena_Private') && pause == false) {
-        
+        const matchType = resp.data.match_type
+        if (matchType !== 'Echo_Arena' && matchType !== 'Echo_Arena_Private') {
+            request()
+            return
+        }
+
+        if(team == undefined) {
+            console.log(`Connected to ${ip}, Echo Arena API, logging ${pseudo}`)
+            playId()
+            request()
+            return
+        }
+
+
         //player left ? on actu
         if(teamlen != resp.data.teams[team].players.length) playId()
         //refresh
         let player = resp.data.teams[team].players[index]
-        //end game ? 
+        //end game ?
         statuss = resp.data.game_status;
 
         let clock = resp.data.game_clock_display.split('.')[0].replace(":", ".")
@@ -105,52 +116,52 @@ function request() {
         if (floatClock<0.30 && end == false && resp.data.game_status == "playing" && options.heart == true) {
             console.log('heartbeat')
             end = true;
-            
+
             let heartBeat = setInterval(() => {
                 if(statuss != "playing") clearInterval(heartBeat), end = false;
-                tactJs.default.submitRegisteredWithScaleOption('heart', optHeart);
+                tactPlay('heart', optHeart);
             },800);
         }
 
-        //stunned ? 
-        
+        //stunned ?
+
         if(player.stunned == true && stunned == false && options.stunned == true) {
             stunned = true;
             console.log('stunned')
-            tactJs.default.submitRegisteredWithScaleOption('stunned', optStunned)
+            tactPlay('stunned', optStunned)
             setTimeout(() => {
                 stunned = false;
             }, 3000);
-        } 
-        
+        }
+
         //someone grab my back ?
         for(let i in resp.data.teams[0].players) {
             if((resp.data.teams[0].players[i].holding_right == playerid || resp.data.teams[0].players[i].holding_left == playerid) && resp.data.game_status == "playing" && options.grab == true) {
-                tactJs.default.submitRegisteredWithScaleOption('grab', optGrab);
+                tactPlay('grab', optGrab);
             }
         }
 
         for(let i in resp.data.teams[1].players) {
             if((resp.data.teams[1].players[i].holding_right == playerid || resp.data.teams[1].players[i].holding_left == playerid) && resp.data.game_status == "playing" && options.grab == true) {
-                tactJs.default.submitRegisteredWithScaleOption('grab', optGrab);
+                tactPlay('grab', optGrab);
             }
         }
-    
+
 
         //point score ?
 
         if((orangepoints != resp.data.orange_points || bluepoints != resp.data.blue_points) && options.goal == true) {
-            tactJs.default.submitRegisteredWithScaleOption('goal', optGoal);
+            tactPlay('goal', optGoal);
             bluepoints = resp.data.blue_points
             console.log('goal')
-            orangepoints = resp.data.orange_points    
+            orangepoints = resp.data.orange_points
         }
 
         //blocking ?
         if(player.blocking == true && block == false && options.shield == true) {
             block = true;
             console.log('blocking')
-            tactJs.default.submitRegisteredWithScaleOption('shield', optShield)
+            tactPlay('shield', optShield)
             setTimeout(() => {
                 block = false;
             }, 400);
@@ -166,7 +177,7 @@ function request() {
                     if(resp.data.teams[Ti].players[i].stunned) {
                         console.log('STUN')
                         stun = true;
-                        tactJs.default.submitRegisteredWithScaleOption('stun', optStun);
+                        tactPlay('stun', optStun);
                         setTimeout(() => {
                             stun = false;
                         }, 1000);
@@ -182,9 +193,9 @@ function request() {
         pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2)+ Math.pow(velocity[2], 2);
 
         if((lastVel/2 > pyVeloc && lastVel > 24 && pyVeloc > 24) && (resp.data.teams[team].players[index].holding_left == "none")&&(resp.data.teams[team].players[index].holding_right == "none") && options.wall == true) {
-            tactJs.default.submitRegisteredWithScaleOption('wall', optWall);
+            tactPlay('wall', optWall);
             console.log('hit wall')
-        } 
+        }
         lastVel = pyVeloc
 
         //Boost 6.56 24.95
@@ -194,7 +205,7 @@ function request() {
 
         if(!(pyVeloc >= 24.94) && (pyVeloc >= tempVeloc -0.12 && pyVeloc <= tempVeloc +0.12) && boost1 == false) {
             boost1 = true;
-            tactJs.default.submitRegisteredWithScaleOption('boost', optBoost);
+            tactPlay('boost', optBoost);
             setTimeout(() => {
                 boost1 = false;
             }, 1000);
@@ -202,13 +213,12 @@ function request() {
 
         if((pyVeloc >= tempVelocMax -0.12 && pyVeloc <= tempVelocMax +0.12) && boost2 == false) {
             boost2 = true;
-            tactJs.default.submitRegisteredWithScaleOption('boost', optBoost);
-            
+            tactPlay('boost', optBoost);
+
         }
         if(pyVeloc < 24.94) boost2 = false;
-    }
 
-    request() //restart request
+        request() //restart request
 
     }).catch(error =>{
         if(pause == false) {
@@ -236,3 +246,5 @@ function request() {
 setInterval(() => {
     tempVeloc = pyVeloc + 6.56
 }, 50)
+
+module.exports = { request: () => {} }
