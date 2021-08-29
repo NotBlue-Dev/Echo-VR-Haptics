@@ -107,13 +107,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
     ipcRenderer.on('game-ip-bad-defined', (event, arg) => {
         replaceText('#statusIP', arg, '#ff3920')
-        ipcRenderer.send('save-config')
     })
 
     ipcRenderer.on('nick-name-defined', (event, arg) => {
         replaceText('#statusName', arg, '#00D832')
         console.log(`playername is ${arg}`)
-        ipcRenderer.send('save-config')
     })
 
     ipcRenderer.on('find-ip-canceled', (event, arg) => {

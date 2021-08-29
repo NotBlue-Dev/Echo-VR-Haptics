@@ -2,25 +2,11 @@ const axios = require('axios');
 const fs = require("fs");
 const path = require("path");
 
-let team; 
-let index;
-let playerid;
-let orangepoints;
-let bluepoints;
-let stun = false;
-let stunned = false;
-let teamlen;
-let lastVel = 0;
-let block = false;
-let boost1 = false;
-let boost2 = false;
 let end = false;
 let statuss;
-let checks;
 let tempVeloc;
 let tempVelocMax = 24.95
 let pyVeloc;
-let Ti;
 let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../config.json'), 'utf8'))
 
 let optHeart = {intensity: config.files[config.files.findIndex(x=>x.name === 'heart')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'heart')].dur}
@@ -33,218 +19,264 @@ let optBoost = {intensity: config.files[config.files.findIndex(x=>x.name === 'bo
 let optStun = {intensity: config.files[config.files.findIndex(x=>x.name === 'stun')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stun')].dur}
 
 
+class Api {
 
+    constructor(tactPlay, sendEvent, options) {
+        this.tactPlay = tactPlay
+        this.sendEvent = sendEvent
 
-function playId() {
+        this.playerIp = null
+        this.playerId = null
+        this.playerIndex = null
+        this.playerName = null
+        this.playerTeamIndex = null
+
+        this.boost1 = false
+        this.boost2 = false
+        this.stun = false
+        this.stunned = false
+        this.lastVel = 0
+        this.block = false
+        this.options = options
+    }
+
+    setPlayerIp(ip) {
+        this.playerIp = ip
+    }
+
+    setPlayerName(name) {
+        this.playerName = name
+    }
+
+    playId() {
     //get player in json
     axios.get(`http://${ip}:6721/session`).then(resp => { 
         //team bleu
-        let arr0 = resp.data.teams[0].players;
+        const blueTeamPlayers = resp.data.teams[0].players;
+        const orangeTeamPlayers = resp.data.teams[1].players;
 
-        if(arr0 != undefined) {
-            if(arr0.some(item => item.name === pseudo)) {
-                team = 0; 
-                teamlen = arr0.length;
-                index = arr0.findIndex((element, index) => {if (element.name === pseudo) {return true}})
-            }
+        if (blueTeamPlayers === undefined && orangeTeamPlayers === undefined) {
+            return
         }
 
-        //team orange
-        let arr1 = resp.data.teams[1].players;
-
-        if(arr1 != undefined) {
-            if(arr1.some(item => item.name === pseudo)) {
-                team = 1;
-                teamlen = arr1.length
-                index = arr1.findIndex((element, index) => {if (element.name === pseudo) {return true}})
-            } else {
-                if(team == undefined && index == undefined ) {
-                    pause = true; 
-                    let element = document.querySelector('#statusName')
-                    element.style.color = '#FFBB00'
-                    console.log('PSEUDO NOT IN GAME')
-                    checks = false;
-                }
-            }
-            
+        if(blueTeamPlayers !== undefined && blueTeamPlayers.some(item => item.name === this.playerName)) {
+            this.playerTeamIndex = 0;
+            this.playerTeamLength = blueTeamPlayers.length;
+            this.playerIndex = blueTeamPlayers.findIndex((element) => { return (element.name === this.playerName)})
+        } else if(orangeTeamPlayers !== undefined && orangeTeamPlayers.some(item => item.name === this.playerName)) {
+            this.playerTeamIndex = 1;
+            this.playerTeamLength = orangeTeamPlayers.length
+            this.playerIndex = orangeTeamPlayers.findIndex((element) => { return (element.name === this.playerName)})
+        } else if (this.playerTeamIndex === null && this.playerIndex == null ) {
+            this.sendEvent('api-player-not-in-game')
+            // pause = true;
+            // let element = document.querySelector('#statusName')
+            // element.style.color = '#FFBB00'
+            // console.log('PSEUDO NOT IN GAME')
         }
 
-        playerid = resp.data.teams[team].players[index].playerid;
-        stuns = resp.data.teams[team].players[index].stats.stuns
-        orangepoints = resp.data.orange_points;
-        bluepoints = resp.data.blue_points;
+        this.playerId = resp.data.teams[this.playerTeamIndex].players[this.playerIndex].playerid;
+        this.orangepoints = resp.data.orange_points;
+        this.bluepoints = resp.data.blue_points;
 
         pause = false;
-        
-        if(team == 0) {
-            Ti = 1
-        } else {
-            Ti = 0
-        }
-
     })
 }
 
-function request(tactPlay) {
-    
-    axios.get(`http://${ip}:6721/session`).then(resp => { 
+    request() {
 
-        const matchType = resp.data.match_type
-        if (matchType !== 'Echo_Arena' && matchType !== 'Echo_Arena_Private') {
-            request()
-            return
-        }
+        axios.get(`http://${this.playerIp}:6721/session`).then(resp => {
 
-        if(team == undefined) {
-            console.log(`Connected to ${ip}, Echo Arena API, logging ${pseudo}`)
-            playId()
-            request()
-            return
-        }
+            const matchType = resp.data.match_type
+            if (matchType !== 'Echo_Arena' && matchType !== 'Echo_Arena_Private') {
+                this.request()
+                return
+            }
+
+            if (this.playerTeamIndex === null) {
+                console.log(`Connected to ${this.playerIp}, Echo Arena API, logging ${this.playerName}`)
+                this.playId()
+                this.request()
+                return
+            }
 
 
-        //player left ? on actu
-        if(teamlen != resp.data.teams[team].players.length) playId()
-        //refresh
-        let player = resp.data.teams[team].players[index]
-        //end game ?
-        statuss = resp.data.game_status;
+            const playerTeam = resp.data.teams[this.playerTeamIndex]
+            //player left ? on actu
+            this.refresh(playerTeam)
 
-        let clock = resp.data.game_clock_display.split('.')[0].replace(":", ".")
-        clock = clock.replace(clock.charAt(0), '')
-        let floatClock =+ (clock)
-        if (floatClock<0.30 && end == false && resp.data.game_status == "playing" && options.heart == true) {
-            console.log('heartbeat')
-            end = true;
+            //refresh
+            let player = playerTeam.players[this.playerIndex]
+            //end game ?
+            statuss = resp.data.game_status;
 
-            let heartBeat = setInterval(() => {
-                if(statuss != "playing") clearInterval(heartBeat), end = false;
-                tactPlay('heart', optHeart);
-            },800);
-        }
+            let clock = resp.data.game_clock_display.split('.')[0].replace(":", ".")
+            clock = clock.replace(clock.charAt(0), '')
+            let floatClock = +(clock)
+            if (floatClock < 0.30 && end == false && resp.data.game_status == "playing" && this.options.heart == true) {
+                console.log('heartbeat')
+                end = true;
 
-        //stunned ?
+                let heartBeat = setInterval(() => {
+                    if (statuss != "playing") clearInterval(heartBeat), end = false;
+                    this.tactPlay('heart', optHeart);
+                }, 800);
+            }
 
-        if(player.stunned == true && stunned == false && options.stunned == true) {
-            stunned = true;
-            console.log('stunned')
-            tactPlay('stunned', optStunned)
+            this.handleStunned(player)
+            this.handleGrab(resp.data.teams[0].players, resp.data.teams[1].players, resp.data.game_status)
+            this.handleGoal(resp.data.blue_points, resp.data.orange_points)
+            this.handleBlock(player)
+            this.handleStun(player, resp.data.teams[Math.abs(this.playerTeamIndex - 1)].players)
+            this.handleWall(player)
+            this.handleBoost(player)
+
+            this.request() //restart request
+
+        }).catch(error => {
+            if (pause == false) {
+                if (error.response) {
+                    if (error.response.status == 404) {
+                        console.log('in Menu/Loading or invalid IP')
+                    } else {
+                        console.log(error.response.status)
+                    }
+                } else if (error.request) {
+                    console.log('Connection refused, game running ?');
+                } else {
+                    console.log('Error', error);
+                }
+            }
+
+            //auto restart after 5s
             setTimeout(() => {
-                stunned = false;
+                this.playId()
+                this.request()
+            }, 5000);
+        })
+    }
+
+    refresh(team) {
+        if (this.playerTeamLength !== team.players.length) {
+            this.playId()
+        }
+    }
+
+    handleStunned(player) {
+        if (player.stunned == true && this.stunned == false && this.options.stunned == true) {
+            this.stunned = true;
+            console.log('stunned')
+            this.tactPlay('stunned', optStunned)
+            setTimeout(() => {
+                this.stunned = false;
             }, 3000);
         }
+    }
 
-        //someone grab my back ?
-        for(let i in resp.data.teams[0].players) {
-            if((resp.data.teams[0].players[i].holding_right == playerid || resp.data.teams[0].players[i].holding_left == playerid) && resp.data.game_status == "playing" && options.grab == true) {
-                tactPlay('grab', optGrab);
+    handleGrab(orangePlayers, bluePlayers, gameStatus) {
+        for (let i in orangePlayers) {
+            if ((orangePlayers[i].holding_right === this.playerId || orangePlayers[i].holding_left === this.playerId) && gameStatus === "playing" && this.options.grab === true) {
+                this.tactPlay('grab', optGrab);
             }
         }
 
-        for(let i in resp.data.teams[1].players) {
-            if((resp.data.teams[1].players[i].holding_right == playerid || resp.data.teams[1].players[i].holding_left == playerid) && resp.data.game_status == "playing" && options.grab == true) {
-                tactPlay('grab', optGrab);
+        for (let i in bluePlayers) {
+            if ((bluePlayers[i].holding_right === this.playerId || bluePlayers[i].holding_left === this.playerId) && gameStatus === "playing" && this.options.grab === true) {
+                this.tactPlay('grab', optGrab);
             }
         }
+    }
 
-
-        //point score ?
-
-        if((orangepoints != resp.data.orange_points || bluepoints != resp.data.blue_points) && options.goal == true) {
-            tactPlay('goal', optGoal);
-            bluepoints = resp.data.blue_points
+    handleGoal(bluePoints, orangePoints) {
+        if ((this.orangepoints != orangePoints || this.bluepoints != bluePoints) && this.options.goal == true) {
             console.log('goal')
-            orangepoints = resp.data.orange_points
+            this.tactPlay('goal', optGoal);
+            this.bluepoints = bluePoints
+            this.orangepoints = orangePoints
         }
+    }
 
-        //blocking ?
-        if(player.blocking == true && block == false && options.shield == true) {
-            block = true;
+    handleBlock(player) {
+        if (player.blocking == true && this.block == false && this.options.shield == true) {
+            this.block = true;
             console.log('blocking')
-            tactPlay('shield', optShield)
+            this.tactPlay('shield', optShield)
             setTimeout(() => {
-                block = false;
+                this.block = false;
             }, 400);
         }
+    }
 
-        //stun smone ? #Broken#
+    handleStun(player, enemyPlayers) {
+        // FIXME: Broken
 
-        if(options.stun == true && stun == false) {
-            playerPos = resp.data.teams[team].players[index].head.position
-            for(let i in resp.data.teams[Ti].players) {
-                EnemyPos = resp.data.teams[Ti].players[i].head.position
-                if((playerPos[0] >= EnemyPos[0]-1 && playerPos[0] <= EnemyPos[0]+1) && (playerPos[1] >= EnemyPos[1]-1 && playerPos[1] <= EnemyPos[1]+1) && (playerPos[2] >= EnemyPos[2]-1 && playerPos[2] <= EnemyPos[2]+1)) {
-                    if(resp.data.teams[Ti].players[i].stunned) {
+        if (this.options.stun == true && this.stun == false) {
+            const playerPos = player.head.position
+            for (let i in enemyPlayers) {
+                const enemyPos = enemyPlayers[i].head.position
+                if ((playerPos[0] >= enemyPos[0] - 1 && playerPos[0] <= enemyPos[0] + 1)
+                    && (playerPos[1] >= enemyPos[1] - 1 && playerPos[1] <= enemyPos[1] + 1)
+                    && (playerPos[2] >= enemyPos[2] - 1 && playerPos[2] <= enemyPos[2] + 1)) {
+                    if (enemyPlayers[i].stunned) {
                         console.log('STUN')
-                        stun = true;
-                        tactPlay('stun', optStun);
+                        this.stun = true;
+                        this.tactPlay('stun', optStun);
                         setTimeout(() => {
-                            stun = false;
+                            this.stun = false;
                         }, 1000);
                     }
                 }
             }
         }
+    }
 
-        //hit a wall ?
+    handleBoost(player) {
+        let velocity = player.velocity
 
-        let velocity = resp.data.teams[team].players[index].velocity
-
-        pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2)+ Math.pow(velocity[2], 2);
-
-        if((lastVel/2 > pyVeloc && lastVel > 24 && pyVeloc > 24) && (resp.data.teams[team].players[index].holding_left == "none")&&(resp.data.teams[team].players[index].holding_right == "none") && options.wall == true) {
-            tactPlay('wall', optWall);
-            console.log('hit wall')
-        }
-        lastVel = pyVeloc
+        pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2) + Math.pow(velocity[2], 2);
 
         //Boost 6.56 24.95
 
         if (tempVeloc > 25) tempVeloc = 24.94
         if (tempVelocMax > 25) tempVeloc = 24.94
 
-        if(!(pyVeloc >= 24.94) && (pyVeloc >= tempVeloc -0.12 && pyVeloc <= tempVeloc +0.12) && boost1 == false) {
-            boost1 = true;
-            tactPlay('boost', optBoost);
+        if (!(pyVeloc >= 24.94) && (pyVeloc >= tempVeloc - 0.12 && pyVeloc <= tempVeloc + 0.12) && this.boost1 === false) {
+            this.boost1 = true;
+            this.tactPlay('boost', optBoost);
             setTimeout(() => {
-                boost1 = false;
+                this.boost1 = false;
             }, 1000);
         }
 
-        if((pyVeloc >= tempVelocMax -0.12 && pyVeloc <= tempVelocMax +0.12) && boost2 == false) {
-            boost2 = true;
-            tactPlay('boost', optBoost);
+        if ((pyVeloc >= tempVelocMax - 0.12 && pyVeloc <= tempVelocMax + 0.12) && this.boost2 === false) {
+            this.boost2 = true;
+            this.tactPlay('boost', optBoost);
 
         }
-        if(pyVeloc < 24.94) boost2 = false;
 
-        request() //restart request
-
-    }).catch(error =>{
-        if(pause == false) {
-            if (error.response) {
-                if(error.response.status == 404) {
-                    console.log('in Menu/Loading or invalid IP')
-                } else {
-                    console.log(error.response.status)
-                }
-            } else if (error.request) {
-                console.log('Connection refused, game running ?');
-            } else {
-                console.log('Error', error);
-            }
+        if (pyVeloc < 24.94) {
+            this.boost2 = false;
         }
+    }
 
-        //auto restart after 5s
-        setTimeout(() => {
-            playId()
-            request()
-        }, 5000);
-    })
+    handleWall(player) {
+        const velocity = player.velocity
+
+        const pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2) + Math.pow(velocity[2], 2);
+
+        if ((this.lastVel / 2 > pyVeloc && this.lastVel > 24 && pyVeloc > 24)
+            && (player.holding_left === "none")
+            && (player.holding_right === "none")
+            && this.options.wall === true) {
+            this.tactPlay('wall', optWall);
+            console.log('hit wall')
+        }
+        this.lastVel = pyVeloc
+    }
 }
 
 setInterval(() => {
     tempVeloc = pyVeloc + 6.56
 }, 50)
 
-module.exports = { request: () => {} }
+module.exports = Api

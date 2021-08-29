@@ -11,7 +11,7 @@ class bhapticsPlayer {
         this.nickNameState = false
         this.gameIpState = false
         this.hapticsConnectionState = false
-        this.pause = false
+        this.api = new api(tactJs.default.submitRegisteredWithScaleOption)
     }
 
     launch() {
@@ -43,6 +43,7 @@ class bhapticsPlayer {
         definedNickName !== '' && definedNickName !== undefined && (this.nickNameState = true)
         this.nickNameState && (config.pseudo = definedNickName)
         this.nickNameState && this.sendEvent('nick-name-defined', definedNickName)
+        this.nickNameState && this.api.setPlayerName(definedNickName)
         this.startLoop()
     }
 
@@ -54,6 +55,7 @@ class bhapticsPlayer {
         this.gameIpState && (config.ip = definedIp)
         this.gameIpState && this.sendEvent('game-ip-defined', definedIp)
         !this.gameIpState && this.sendEvent('game-ip-bad-defined', definedIp)
+        this.gameIpState && this.api.setPlayerIp(definedIp, this.sendEvent)
         this.startLoop()
     }
 
@@ -76,12 +78,12 @@ class bhapticsPlayer {
             return
         }
 
-        api.request(tactJs.default.submitRegisteredWithScaleOption)
+        this.api.request()
         this.startLoop()
     }
 
     isReady() {
-        return !this.pause && this.hapticsConnectionState && this.nickNameState && this.gameIpState
+        return this.hapticsConnectionState && this.nickNameState && this.gameIpState
     }
 
     validateIp(ip, callback) {
