@@ -1,9 +1,38 @@
 
-const {app, BrowserWindow} = require('electron')
-const path = require('path')
+const { app, BrowserWindow, ipcMain } = require('electron')
+const bhapticsPlayer = require('./src/bhapticsPlayer')
+const dev = false
 
-function createWindow () {
+const start = (webContents) => {
+  const player = new bhapticsPlayer((channel, args) => {
+    if ((typeof webContents.send) === 'function') {
+      webContents.send(channel, args)
+    } else {
+      console.log('can send event')
+    }
+  })
 
+  ipcMain.on('define-nickName', function (event, arg) {
+    player.defineNickName(arg)
+  })
+
+  ipcMain.on('find-ip', function (event, arg) {
+    player.findIp(arg)
+  })
+
+  ipcMain.on('define-ip', function (event, arg) {
+    player.defineGameIp(arg)
+  })
+
+  ipcMain.on('save-config', function () {
+    player.save()
+  })
+
+  player.launch()
+}
+
+const createWindow = () => {
+  console.log('window create')
   const mainWindow = new BrowserWindow({
     width:685,
     height:850,
@@ -20,20 +49,21 @@ function createWindow () {
     title:'haptic',
   })
   mainWindow.loadFile('./view/main/index.html')
+      .then(() => {
+        dev && mainWindow.webContents.openDevTools()
+        start(mainWindow.webContents)
+      })
+      .catch((err) => console.error(err))
   // comment for prod Version
-  //mainWindow.webContents.openDevTools()
-  
 }
 
 app.whenReady().then(() => {
   createWindow()
-
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    BrowserWindow.getAllWindows().length === 0 && createWindow()
   })
 })
 
-
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
+  process.platform !== 'darwin' && app.quit()
 })

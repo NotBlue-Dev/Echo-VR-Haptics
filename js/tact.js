@@ -1,5 +1,6 @@
 const tactJs = require('./tact-js/tact-js.umd.js')
 const fs = require('fs')
+const path = require("path");
 let connect = false;
     
 module.exports = function() {
@@ -25,5 +26,4 @@ function connection() {
         //effet de ping pour le gilet 
         tactJs.default.registerFile('ping', '{"ping":"pong"}');
     })
-
 }

@@ -1,5 +1,7 @@
 const tactJs = require('../../js/tact-js/tact-js.umd.js');
 const axios = require('axios');
+const fs = require("fs");
+const path = require("path");
 
 let team; 
 let index;
@@ -20,6 +22,7 @@ let tempVeloc;
 let tempVelocMax = 24.95
 let pyVeloc;
 let Ti;
+let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
 
 let optHeart = {intensity: config.files[config.files.findIndex(x=>x.name === 'heart')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'heart')].dur}
 let optStunned = {intensity: config.files[config.files.findIndex(x=>x.name === 'stunned')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stunned')].dur}
@@ -29,7 +32,6 @@ let optShield = {intensity: config.files[config.files.findIndex(x=>x.name === 's
 let optWall = {intensity: config.files[config.files.findIndex(x=>x.name === 'wall')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'wall')].dur}
 let optBoost = {intensity: config.files[config.files.findIndex(x=>x.name === 'boost')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'boost')].dur}
 let optStun = {intensity: config.files[config.files.findIndex(x=>x.name === 'stun')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stun')].dur}
-
 
 function playId() {
     //get player in json
