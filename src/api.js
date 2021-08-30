@@ -134,7 +134,7 @@ class Api {
             this.request() //restart request
 
         }).catch(error => {
-            if (error.jsononse) {
+            if (error.response) {
                 if (error.jsononse.status == 404) {
                     console.log('in Menu/Loading or invalid IP')
                 } else {
