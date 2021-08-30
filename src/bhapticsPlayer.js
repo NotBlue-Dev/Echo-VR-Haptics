@@ -1,6 +1,7 @@
 const tact = require('./tact')
 const api = require('./api')
 const ipFinder = require('./ipFinder')
+const tactJs = require('./tact-js/tact-js.umd.js')
 const config = require('../config.json')
 const fs = require("fs");
 const path = require("path");
@@ -50,13 +51,15 @@ class bhapticsPlayer {
     defineGameIp(ip) {
         const definedIp = ip || config.ip
         this.validateIp(definedIp, () => {
-            this.gameIpState = true
+            this.gameIpState = true 
         })
-        this.gameIpState && (config.ip = definedIp)
-        this.gameIpState && this.sendEvent('game-ip-defined', definedIp)
-        !this.gameIpState && this.sendEvent('game-ip-bad-defined', definedIp)
-        this.gameIpState && this.api.setPlayerIp(definedIp, this.sendEvent)
-        this.startLoop()
+        setTimeout(() => {
+            this.gameIpState && (config.ip = definedIp)
+            this.gameIpState && this.sendEvent('game-ip-defined', definedIp)
+            !this.gameIpState && this.sendEvent('game-ip-bad-defined', definedIp)
+            this.gameIpState && this.api.setPlayerIp(definedIp, this.sendEvent)
+            this.startLoop()
+        }, 100);
     }
 
     save() {
@@ -65,7 +68,6 @@ class bhapticsPlayer {
                 this.sendEvent('config-save-failed')
                 return
             }
-
             this.sendEvent('config-save-success')
         });
     }
@@ -94,9 +96,7 @@ class bhapticsPlayer {
         this.gameIpState = false
         ipFinder.findIp(arg)
             .then((ip)=> {
-                this.validateIp(ip, () => {
-                    this.defineGameIp(ip)
-                })
+                this.defineGameIp(ip)
             }).catch((err) => {
                 if(err === 'cancel') {
                     this.sendEvent('find-ip-canceled')

@@ -1,5 +1,6 @@
 const arp = require('arp')
 const oui = require('oui')
+const find = require('local-devices');
 
 class ipFinder {
 
@@ -21,29 +22,32 @@ class ipFinder {
                 reject('timeout')
             }, 10000)
 
-            for(let i = 1; i < 5; i++) {
-                for (let j = 1; j < 254; j++) {
-                    this.validate(`192.168.${i}.${j}`).then(() => {
-                        resolve(`192.168.${i}.${j}`)
+            find().then(devices => {
+                devices.forEach(data => {
+                    this.validate(data.ip).then(() => {
+                        resolve(data.ip)
                     }).catch(() => {})
-                }
-            }
-
-            reject('failed')
+                });
+            })
+                    
+            
+            // reject('failed')
         })
     }
 
     validate(ip) {
         return new Promise((resolve, reject) => {
+            if(ip == 'localhost') resolve()
             arp.getMAC(ip, (err, mac) => {
                 if (err) {
                     reject()
-                    return
+                    return;
                 }
                 try {
                     let a = oui(mac)
                     if (a.split(' ')[0] === 'Oculus') {
                         resolve()
+                        return;
                     }
                 } catch {
                     reject()

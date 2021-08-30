@@ -60,7 +60,7 @@ class Tact {
             files.filter((file) => {
                 return file.match(/([A-z]+).tact$/g) !== null
             }).forEach((value) => {
-                tactJs.default.registerFile(name ,require(`../assets/${value}`).stringify())
+                tactJs.default.registerFile(value.split('.')[0] ,fs.readFileSync((__dirname + `/../assets/${value}`), 'utf8'))
                 this.handleFileLoaded(value)
             })
         })

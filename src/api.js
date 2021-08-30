@@ -1,4 +1,4 @@
-const axios = require('axios');
+const fetch = require('node-fetch');
 const fs = require("fs");
 const path = require("path");
 
@@ -50,10 +50,10 @@ class Api {
 
     playId() {
     //get player in json
-    axios.get(`http://${ip}:6721/session`).then(resp => { 
+    fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
         //team bleu
-        const blueTeamPlayers = resp.data.teams[0].players;
-        const orangeTeamPlayers = resp.data.teams[1].players;
+        const blueTeamPlayers = json.data.teams[0].players;
+        const orangeTeamPlayers = json.data.teams[1].players;
 
         if (blueTeamPlayers === undefined && orangeTeamPlayers === undefined) {
             return
@@ -75,9 +75,9 @@ class Api {
             // console.log('PSEUDO NOT IN GAME')
         }
 
-        this.playerId = resp.data.teams[this.playerTeamIndex].players[this.playerIndex].playerid;
-        this.orangepoints = resp.data.orange_points;
-        this.bluepoints = resp.data.blue_points;
+        this.playerId = json.data.teams[this.playerTeamIndex].players[this.playerIndex].playerid;
+        this.orangepoints = json.data.orange_points;
+        this.bluepoints = json.data.blue_points;
 
         pause = false;
     })
@@ -85,9 +85,9 @@ class Api {
 
     request() {
 
-        axios.get(`http://${this.playerIp}:6721/session`).then(resp => {
+        fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
 
-            const matchType = resp.data.match_type
+            const matchType = json.data.match_type
             if (matchType !== 'Echo_Arena' && matchType !== 'Echo_Arena_Private') {
                 this.request()
                 return
@@ -101,19 +101,19 @@ class Api {
             }
 
 
-            const playerTeam = resp.data.teams[this.playerTeamIndex]
+            const playerTeam = json.data.teams[this.playerTeamIndex]
             //player left ? on actu
             this.refresh(playerTeam)
 
             //refresh
             let player = playerTeam.players[this.playerIndex]
             //end game ?
-            statuss = resp.data.game_status;
+            statuss = json.data.game_status;
 
-            let clock = resp.data.game_clock_display.split('.')[0].replace(":", ".")
+            let clock = json.data.game_clock_display.split('.')[0].replace(":", ".")
             clock = clock.replace(clock.charAt(0), '')
             let floatClock = +(clock)
-            if (floatClock < 0.30 && end == false && resp.data.game_status == "playing" && this.options.heart == true) {
+            if (floatClock < 0.30 && end == false && json.data.game_status == "playing" && this.options.heart == true) {
                 console.log('heartbeat')
                 end = true;
 
@@ -124,30 +124,28 @@ class Api {
             }
 
             this.handleStunned(player)
-            this.handleGrab(resp.data.teams[0].players, resp.data.teams[1].players, resp.data.game_status)
-            this.handleGoal(resp.data.blue_points, resp.data.orange_points)
+            this.handleGrab(json.data.teams[0].players, json.data.teams[1].players, json.data.game_status)
+            this.handleGoal(json.data.blue_points, json.data.orange_points)
             this.handleBlock(player)
-            this.handleStun(player, resp.data.teams[Math.abs(this.playerTeamIndex - 1)].players)
+            this.handleStun(player, json.data.teams[Math.abs(this.playerTeamIndex - 1)].players)
             this.handleWall(player)
             this.handleBoost(player)
 
             this.request() //restart request
 
         }).catch(error => {
-            if (pause == false) {
-                if (error.response) {
-                    if (error.response.status == 404) {
-                        console.log('in Menu/Loading or invalid IP')
-                    } else {
-                        console.log(error.response.status)
-                    }
-                } else if (error.request) {
-                    console.log('Connection refused, game running ?');
+            if (error.jsononse) {
+                if (error.jsononse.status == 404) {
+                    console.log('in Menu/Loading or invalid IP')
                 } else {
-                    console.log('Error', error);
+                    console.log(error.jsononse.status)
                 }
+            } else if (error.request) {
+                console.log('Connection refused, game running ?');
+            } else {
+                console.log('Error', error);
             }
-
+    
             //auto restart after 5s
             setTimeout(() => {
                 this.playId()
