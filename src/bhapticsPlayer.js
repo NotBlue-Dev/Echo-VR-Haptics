@@ -50,16 +50,13 @@ class bhapticsPlayer {
 
     defineGameIp(ip) {
         const definedIp = ip || config.ip
-        this.validateIp(definedIp, () => {
-            this.gameIpState = true 
-        })
-        setTimeout(() => {
+        this.validateIp(definedIp, (val) => {
             this.gameIpState && (config.ip = definedIp)
             this.gameIpState && this.sendEvent('game-ip-defined', definedIp)
             !this.gameIpState && this.sendEvent('game-ip-bad-defined', definedIp)
             this.gameIpState && this.api.setPlayerIp(definedIp, this.sendEvent)
             this.startLoop()
-        }, 100);
+        })
     }
 
     save() {
@@ -89,7 +86,7 @@ class bhapticsPlayer {
     }
 
     validateIp(ip, callback) {
-        ipFinder.validate(ip).then(callback).catch(() => {} )
+        ipFinder.validate(ip).then(() => {this.gameIpState = true}).catch(() => {this.gameIpState = false} ).finally(callback)
     }
 
     findIp(arg) {

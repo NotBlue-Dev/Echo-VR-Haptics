@@ -28,10 +28,7 @@ class ipFinder {
                         resolve(data.ip)
                     }).catch(() => {})
                 });
-            })
-                    
-            
-            // reject('failed')
+            })                   
         })
     }
 
