@@ -9,7 +9,6 @@ const path = require("path");
 class bhapticsPlayer {
     constructor(sendEvent) {
         this.sendEvent = sendEvent
-        this.nickNameState = false
         this.gameIpState = false
         this.hapticsConnectionState = false
         this.api = new api(tactJs.default.submitRegisteredWithScaleOption)
@@ -17,7 +16,6 @@ class bhapticsPlayer {
 
     launch() {
         this.defineGameIp(config.ip)
-        this.defineNickName(config.pseudo)
         tact
             .onFileLoaded((file) => {
                 this.sendEvent('tact-device-fileLoaded', file)
@@ -38,19 +36,9 @@ class bhapticsPlayer {
             .connect()
     }
 
-    defineNickName(nickName) {
-        const definedNickName = nickName || config.pseudo
-        this.nickNameState = false
-        definedNickName !== '' && definedNickName !== undefined && (this.nickNameState = true)
-        this.nickNameState && (config.pseudo = definedNickName)
-        this.nickNameState && this.sendEvent('nick-name-defined', definedNickName)
-        this.nickNameState && this.api.setPlayerName(definedNickName)
-        this.startLoop()
-    }
-
     defineGameIp(ip) {
         const definedIp = ip || config.ip
-        this.validateIp(definedIp, (val) => {
+        this.validateIp(definedIp, () => {
             this.gameIpState && (config.ip = definedIp)
             this.gameIpState && this.sendEvent('game-ip-defined', definedIp)
             !this.gameIpState && this.sendEvent('game-ip-bad-defined', definedIp)
@@ -82,7 +70,7 @@ class bhapticsPlayer {
     }
 
     isReady() {
-        return this.hapticsConnectionState && this.nickNameState && this.gameIpState
+        return this.hapticsConnectionState && this.gameIpState
     }
 
     validateIp(ip, callback) {

@@ -12,10 +12,6 @@ const start = (webContents) => {
     }
   })
 
-  ipcMain.on('define-nickName', function (event, arg) {
-    player.defineNickName(arg)
-  })
-
   ipcMain.on('find-ip', function (event, arg) {
     player.findIp(arg)
   })

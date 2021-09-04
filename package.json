@@ -29,6 +29,8 @@
     "oui": "^11.0.76",
     "package.json": "^2.0.1",
     "prompt": "^1.1.0",
+    "react-native-event-listeners": "^1.0.7",
+    "react-native-file-viewer": "^2.1.4",
     "socket.io": "^4.1.3",
     "tact-js": "^0.3.2",
     "uaup-js": "0.0.22",

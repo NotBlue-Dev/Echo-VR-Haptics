@@ -18,7 +18,6 @@ let optWall = {intensity: config.files[config.files.findIndex(x=>x.name === 'wal
 let optBoost = {intensity: config.files[config.files.findIndex(x=>x.name === 'boost')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'boost')].dur}
 let optStun = {intensity: config.files[config.files.findIndex(x=>x.name === 'stun')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stun')].dur}
 
-
 class Api {
 
     constructor(tactPlay, sendEvent, options) {
@@ -44,15 +43,12 @@ class Api {
         this.playerIp = ip
     }
 
-    setPlayerName(name) {
-        this.playerName = name
-    }
-
     playId() {
     //get player in json
     fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
         //team bleu
         const blueTeamPlayers = json.data.teams[0].players;
+        this.playerName = json.data.client_name;
         const orangeTeamPlayers = json.data.teams[1].players;
 
         if (blueTeamPlayers === undefined && orangeTeamPlayers === undefined) {

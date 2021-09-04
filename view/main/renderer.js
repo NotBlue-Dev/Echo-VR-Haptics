@@ -6,7 +6,6 @@ const path = require('path');
 const prompt = require("electron-prompt");
 
 let ip;
-let pseudo;
 
 let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
 
@@ -17,7 +16,6 @@ config.files.forEach((value) => {
 })
 
 ip = config.ip;
-pseudo = config.pseudo;
 
 //electron
 
@@ -95,23 +93,10 @@ window.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('game-ip-defined', (event, arg) => {
         replaceText('#statusIP', arg, '#00D832')
         ipcRenderer.send('save-config')
-        prompt({
-            title: 'playername',
-            label: 'Enter your oculus playername',
-            value: '',
-            type: 'input'
-        }).then((response) => {
-            ipcRenderer.send('define-nickName', response)
-        })
     })
 
     ipcRenderer.on('game-ip-bad-defined', (event, arg) => {
         replaceText('#statusIP', arg, '#ff3920')
-    })
-
-    ipcRenderer.on('nick-name-defined', (event, arg) => {
-        replaceText('#statusName', arg, '#00D832')
-        console.log(`playername is ${arg}`)
     })
 
     ipcRenderer.on('find-ip-canceled', (event, arg) => {
