@@ -5,7 +5,6 @@ const find = require('local-devices');
 class ipFinder {
 
     findIp(type) {
-        console.log('findIp', typeof type)
         return new Promise((resolve, reject) => {
             if(type === '') {
                 reject('cancel')
@@ -34,7 +33,7 @@ class ipFinder {
 
     validate(ip) {
         return new Promise((resolve, reject) => {
-            if(ip == 'localhost') resolve()
+            if(ip === 'localhost') resolve()
             arp.getMAC(ip, (err, mac) => {
                 if (err) {
                     reject()
@@ -44,7 +43,6 @@ class ipFinder {
                     let a = oui(mac)
                     if (a.split(' ')[0] === 'Oculus') {
                         resolve()
-                        return;
                     }
                 } catch {
                     reject()
