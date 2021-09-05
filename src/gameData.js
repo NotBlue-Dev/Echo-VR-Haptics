@@ -1,8 +1,10 @@
 class GameData {
     constructor(json) {
-        const playerName = json.data.client_name;
-        this.blueTeamPlayers = json.data.teams[0].players;
-        this.orangeTeamPlayers = json.data.teams[1].players;
+        // const playerName = json.client_name;
+        const playerName = 'Atorex'
+        this.NameOfPlayer = playerName;
+        this.blueTeamPlayers = json.teams[0].players;
+        this.orangeTeamPlayers = json.teams[1].players;
 
         if (this.blueTeamPlayers === undefined && this.orangeTeamPlayers === undefined) {
             return
@@ -18,29 +20,22 @@ class GameData {
             this.playerIndex = this.orangeTeamPlayers.findIndex((element) => { return (element.name === playerName)})
         }
 
-        this.orangepoints = json.data.orange_points;
-        this.bluepoints = json.data.blue_points;
-        this.status = json.data.game_status;
-        this.clockDisplay = json.data.game_clock_display;
+        this.orangepoints = json.orange_points;
+        this.bluepoints = json.blue_points;
+        this.status = json.game_status;
+        this.clockDisplay = json.game_clock_display;
 
-        if (this.isPlayerInGame()) {
-            this.playerTeam = json.data.teams[this.playerTeamIndex]
-            this.player = this.playerTeam.players[this.playerIndex]
-            this.playerId = this.player.playerid;
+        this.playerTeam = json.teams[this.playerTeamIndex]
+        this.player = this.playerTeam.players[this.playerIndex]
+        this.playerId = this.player.playerid;
 
-            this.enemyTeamPlayers = json.data.teams[Math.abs(this.playerTeamIndex - 1)].players
-        }
+        this.enemyTeamPlayers = json.teams[Math.abs(this.playerTeamIndex - 1)].players
 
-        this.matchType = json.data.match_type
-    }
-
-    isPlayerInGame() {
-        // Ça me paraît bizarre comme condition
-        return this.playerTeamIndex !== null || this.playerIndex !== null;
+        this.matchType = json.match_type
     }
 
     isInMatch() {
-        return this.matchType === 'Echo_Arena' && this.matchType === 'Echo_Arena_Private'
+        return this.matchType === 'Echo_Arena' || this.matchType === 'Echo_Arena_Private'
     }
 
     isPlaying() {

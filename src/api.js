@@ -1,6 +1,4 @@
 const fetch = require('node-fetch');
-const fs = require("fs");
-const path = require("path");
 const Heart = require("./effects/heart");
 const Stunned = require("./effects/stunned");
 const Grab = require("./effects/grab");
@@ -17,7 +15,6 @@ class Api {
         this.sendEvent = sendEvent
         this.config = config
         this.effects = []
-
         this.initializeEffects()
     }
 
@@ -43,7 +40,6 @@ class Api {
     }
 
     setEffectsSetting(settings) {
-        console.log(settings)
         this.config.effects = settings
 
         this.initializeEffects()
@@ -65,10 +61,8 @@ class Api {
     playId() {
         fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
             const gameData = new GameData(json)
-            if (false === gameData.isPlayerInGame()) {
-                this.sendEvent('api-player-not-in-game')
-            }
             this.playerTeamLength = gameData.playerTeamLength
+            
         })
     }
 
@@ -76,15 +70,8 @@ class Api {
         fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
             const gameData = new GameData(json)
 
-            if (false === gameData.isInMatch()) {
-                this.request()
-                return
-            }
-
-            if (false === gameData.isPlayerInGame()) {
-                console.log(`Connected to ${this.playerIp}, Echo Arena API, logging ${this.playerName}`)
-                this.playId()
-                this.request()
+            if (!gameData.isInMatch()) {
+                console.log('not in match')
                 return
             }
 

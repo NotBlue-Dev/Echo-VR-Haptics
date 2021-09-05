@@ -12,11 +12,11 @@ class Heart {
             .replace(":", ".")
         const clock = tempClock.replace(tempClock.charAt(0), '')
         const floatClock = +(clock)
-        if (floatClock < 0.30 && this.end === false && status === "playing") {
+        if (floatClock < 0.30 && this.end === false && gameData.isInMatch()) {
             this.end = true;
-
+            console.log('HEARTBAT')
             const heartBeat = setInterval(() => {
-                if (status !== 'playing') {
+                if (!gameData.isInMatch()) {
                     clearInterval(heartBeat)
                     this.end = false
                 }

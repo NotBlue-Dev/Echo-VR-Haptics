@@ -99,7 +99,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const save = document.getElementById('save')
     save && save.addEventListener('click', () => {
         ipcRenderer.send('save-config')
-        window.location.href = "../main/index.html";
+        // window.location.href = "../main/index.html";
     })
 
     const reset = document.getElementById('reset')

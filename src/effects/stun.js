@@ -7,13 +7,13 @@ class Stun {
     }
 
     handle(gameData) {
-        // FIXME: Broken
+
         if (this.stun) {
             return
         }
 
         const playerPos = gameData.player.head.position
-        gameData.enemyPlayers.forEach((enemyPlayer) => {
+        gameData.enemyTeamPlayers.forEach((enemyPlayer) => {
             const enemyPos = enemyPlayer.head.position
             if ((playerPos[0] >= enemyPos[0] - 1 && playerPos[0] <= enemyPos[0] + 1)
                 && (playerPos[1] >= enemyPos[1] - 1 && playerPos[1] <= enemyPos[1] + 1)

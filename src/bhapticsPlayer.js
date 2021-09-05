@@ -53,13 +53,15 @@ class bhapticsPlayer {
                 this.sendEvent('tact-device-fileLoaded', file)
             })
             .onConnecting(() => {
-                this.hapticsConnectionState = false
                 this.sendEvent('tact-device-connecting', {})
             })
             .onConnected(() => {
-                this.hapticsConnectionState = true
-                this.sendEvent('tact-device-connected', {})
-                this.startLoop()
+                //sinon start 4-5 fois la boucle et send l'event plusieurs fois
+                if(this.hapticsConnectionState != true) {
+                    this.hapticsConnectionState = true
+                    this.sendEvent('tact-device-connected', {})
+                    this.startRequest()
+                }
             })
             .onDisconnected((message) => {
                 this.hapticsConnectionState = false
@@ -75,30 +77,27 @@ class bhapticsPlayer {
             this.gameIpState && this.sendEvent('game-ip-defined', definedIp)
             !this.gameIpState && this.sendEvent('game-ip-bad-defined', definedIp)
             this.gameIpState && this.api.setPlayerIp(definedIp, this.sendEvent)
-            this.startLoop()
+            this.startRequest()
         })
     }
 
     save() {
         fs.writeFile(path.join(__dirname, `../config.json`), JSON.stringify(this.api.config), (err) => {
             if (err) {
+                console.log('save failed')
                 this.sendEvent('config-save-failed')
                 return
             }
+            console.log('save success')
             this.sendEvent('config-save-success')
         });
     }
 
-    startLoop() {
-        if (false === this.isReady()) {
-            setTimeout(() => {
-                this.startLoop()
-            }, 1000)
+    startRequest() {
+        if (this.isReady()) {
+            this.api.request()
             return
         }
-
-        this.api.request()
-        this.startLoop()
     }
 
     isReady() {
@@ -126,14 +125,17 @@ class bhapticsPlayer {
     }
 
     updateSetting(arg) {
+        console.log('update')
         const { effect } = arg
 
         const intensity = arg.intensity || this.api.config.effects[effect].intensity
+        //FIXME : return api.config meme quand y'a un arg enable donc casser
         const enable = arg.enable || this.api.config.effects[effect].enable
+        console.log(arg.enable)
         let val = parseFloat(intensity)
         val = Math.max(0.2, val)
         val = Math.min(5.0, val)
-
+        console.log(enable)
         this.api.setEffectSetting(effect, {
             intensity: val,
             enable
