@@ -38,14 +38,15 @@ class Tact {
     initialize() {
         tactJs.default.addListener((message) => {
             if (message.status === 'Connecting') {
-                this.connected = false
                 return this.handleConnecting()
             }
 
             if (message.status === 'Connected') {
-                this.connected = true
-                this.handleConnected()
-                this.loadTactFiles()
+                if(this.connected != true) {
+                    this.connected = true
+                    this.handleConnected()
+                    this.loadTactFiles()
+                }
             }
 
             if (message.status === 'Disconnected') {
@@ -64,7 +65,7 @@ class Tact {
             files.filter((file) => {
                 return file.match(/([A-z]+).tact$/g) !== null
             }).forEach((value) => {
-                tactJs.default.registerFile(value.split('.')[0] ,fs.readFileSync((__dirname + `/../assets/${value}`), 'utf8'))
+                tactJs.default.registerFile(value.split('.')[0] ,fs.readFileSync((__dirname + `/../assets/${value}`)).toString())
                 this.handleFileLoaded(value)
             })
         })
