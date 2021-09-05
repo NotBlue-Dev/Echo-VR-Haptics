@@ -55,6 +55,10 @@ class Tact {
         });
     }
 
+    playEffect(name, options) {
+        tactJs.default.submitRegisteredWithScaleOption(name, options)
+    }
+
     loadTactFiles() {
         fs.readdir(__dirname + '/../assets', {}, (err, files) => {
             files.filter((file) => {

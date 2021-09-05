@@ -1,25 +1,11 @@
-const {remote} = require('electron');
-const win = remote.BrowserWindow.getFocusedWindow();
+const { ipcRenderer } = require('electron');
 const fs = require('fs')
-const bhaptic = require('../../js/tact.js');
-const tactJs = require('../../js/tact-js/tact-js.umd.js')
 const path = require('path');
-
-let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
-let index;
 
 const replaceText = (selector, text) => {
     const element = document.querySelector(selector)
-    if (element) element.innerText = text
+    element && (element.innerText = text)
 }
-
-bhaptic().then((txt) => {
-    if(txt != true) {
-        console.log('Bhaptic player as an issue');  
-    } else {
-        console.log('Connected to Bhaptic Player')
-    }
-})
 
 window.addEventListener('DOMContentLoaded', () => {
 
@@ -28,130 +14,119 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     function createBox(names, file, status, intens, lock) {
-        let box = document.createElement("div");
+        let box = document.createElement('div');
         box.setAttribute('class', 'box');
 
-        let name = document.createElement("SPAN");
-        name.id = "name"
-        name.textContent=names;
+        let name = document.createElement('span');
+        name.id = 'name'
+        name.textContent = names;
 
         box.appendChild(name)
 
-        let inp = document.createElement("INPUT");
-        inp.setAttribute("type", "range");
-        inp.value = intens
-        inp.max = "5"
-        inp.min = "0"
-        inp.setAttribute('class', 'slider')
+        let inputElement = document.createElement('input');
+        inputElement.setAttribute('type', 'range');
+        inputElement.value = intens
+        inputElement.max = '5'
+        inputElement.min = '0'
+        inputElement.setAttribute('class', 'slider')
 
-        inp.addEventListener("change", function() {
-            let val = inp.value
-            if(val == 0) val = 0.2
-            index = config.files.findIndex(x=>x.name === names)
-            config.files[index].intens = parseFloat(val)
+        inputElement.addEventListener('change', function() {
+            ipcRenderer.send('change-setting', {
+                effect: names,
+                intensity: inputElement.value,
+            })
         }, false);
 
-        box.appendChild(inp)
+        box.appendChild(inputElement)
 
-        let nameFile = document.createElement("SPAN");
-        nameFile.id = "nameFile"
-        nameFile.textContent=file;
-
+        const nameFile = document.createElement('span');
+        nameFile.id = 'nameFile'
+        nameFile.textContent = file;
         box.appendChild(nameFile)
 
-        let btn = document.createElement("div");
-        btn.setAttribute('class', 'btn');
-
-        let txt = document.createElement("a");
-
-        let node = document.createTextNode("Play");
-
-        btn.addEventListener('click', e => {
-            index = config.files.findIndex(x=>x.name === names)
-            opt = {intensity: config.files[index].intens, duration: config.files[index].dur};
-            tactJs.default.submitRegisteredWithScaleOption(names, opt)
-        })
-
+        const node = document.createTextNode('Play');
+        const txt = document.createElement('a');
         txt.appendChild(node);
-
+        const btn = document.createElement('div');
+        btn.setAttribute('class', 'btn');
+        btn.addEventListener('click', () => {
+            ipcRenderer.send('play-effect', {
+                effect: names
+            })
+        })
         btn.appendChild(txt)
         box.appendChild(btn)
 
-        let options = document.createElement("SPAN");
+        const options = document.createElement('span');
         options.setAttribute('class', 'end');
 
-        if(status==true) {
-            options.id = "green"
-            options.textContent='enable';
+        if(status === true) {
+            options.id = 'green'
+            options.textContent = 'enable';
         } else {
-            options.id = "red"
-            options.textContent="disable";
+            options.id = 'red'
+            options.textContent = 'disable';
         }
 
         //remove condition lock when everything will be implemented
-        if(lock == true) {
-            options.id = "red"
-            options.textContent="Not Yet";
+        if(lock === true) {
+            options.id = 'red'
+            options.textContent = 'Not Yet';
         }
 
-        
-
-
         //NEED TO SAVE
-        options.addEventListener('click', e => {
-            index = config.files.findIndex(x=>x.name === names)
-            //remove condition not yet when everything will be implemented
-            if(options.textContent!="Not Yet") {
-                if(options.id == 'green') {
-                    options.textContent='disable';
-                    options.id = "red"
-                    config.files[index].state = false
-                } else {
-                    options.textContent='enable';
-                    options.id = "green"
-                    config.files[index].state = true
-                }
+        options.addEventListener('click', () => {
+            if (options.textContent === 'Not Yet') {
+                return
             }
-            
-            
+            const state = (options.id === 'green')
+            const enable = !state
+
+            options.textContent = enable ? 'enable' : 'disable';
+            options.id = enable ? 'green' : 'red'
+            ipcRenderer.send('change-setting', {
+                effect: names,
+                enable,
+            })
         })
 
         box.appendChild(options)
 
-        document.getElementById("container").appendChild(box); 
+        const container = document.getElementById('container')
+        container && container.appendChild(box);
     }
 
-    config.files.forEach((value) => {
-        createBox(value.name, value.file, value.state, value.intens, value.lock)
-    })
-
-    let save = document.querySelector('#save')
-
-    save.addEventListener('click', e => {
-        fs.writeFile(path.join(__dirname, '../../config.json'), JSON.stringify(config), (err) => {
-            if (err) console.error;
-        });
+    const save = document.getElementById('save')
+    save && save.addEventListener('click', () => {
+        ipcRenderer.send('save-config')
         window.location.href = "../main/index.html";
     })
 
-    let reset = document.querySelector('#reset')
-
-    reset.addEventListener('click', e => {
-        const div = document.querySelector('#container')
-        while(div.firstChild) div.firstChild.remove()
-        config.files = JSON.parse(fs.readFileSync(path.join(__dirname, '../../assets/default.json'), 'utf8'))
-        console.log(config.files)
-        config.files.forEach((value) => {
-            createBox(value.name, value.file, value.state, value.intens, value.lock)
-        })
+    const reset = document.getElementById('reset')
+    reset && reset.addEventListener('click', () => {
+        const div = document.getElementById('container')
+        while (div.firstChild) {
+            div.firstChild.remove()
+        }
+        ipcRenderer.send('default-settings')
     })
 
-    let close = document.querySelector('#close')
-
-    close.addEventListener('click', e => {
+    const close = document.getElementById('close')
+    close && close.addEventListener('click', e => {
         window.location.href = "../main/index.html";
     })
 
+    const displaySettings = (settings) => {
+        for (const [name, effect] of Object.entries(settings)) {
+            createBox(name, name + '.tact', effect.enable, effect.intensity, effect.lock)
+        }
+    }
+
+    ipcRenderer.on('settings-updated', (event, arg) => {
+        displaySettings(arg)
+    })
+
+    ipcRenderer.send('get-settings')
 })
 
 
