@@ -2,25 +2,26 @@ class Boost {
     constructor(tactPlay, options) {
         this.tactPlay = tactPlay
         this.options = options
-        this.iteration = 0
         this.boost1 = false
         this.boost2 = false
         this.tempVelocMax = 24.95
         this.tempVeloc = 0
+        this.nextTimeStamp = 0
+        //FIXME : rentrer la valeur de la durée du boost
+        this.boostLenght = 0
     }
 
     handle(gameData) {
-        // FIXME: à revoir avec un timestamp
         const velocity = gameData.player.velocity
 
         const pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2) + Math.pow(velocity[2], 2);
 
-        if(this.iteration >=6) {
-            this.iteration = 0
+        const currentTimeStamp = Date.now().getTime()
+    
+        if(this.nextTimeStamp >= currentTimeStamp) {
             this.tempVeloc = pyVeloc + 6.56
+            this.nextTimeStamp += this.boostLenght
         }
-
-        this.iteration += 1
 
         //Boost 6.56 24.95
 
