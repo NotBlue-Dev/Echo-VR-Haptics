@@ -10,7 +10,7 @@ class Shield {
         if (gameData.player.blocking === true && this.block === false) {
             this.block = true;
             console.log('blocking')
-            console.log(this.tactPlay('shield', this.options))
+            this.tactPlay('shield', this.options)
             setTimeout(() => {
                 this.block = false;
             }, 400);

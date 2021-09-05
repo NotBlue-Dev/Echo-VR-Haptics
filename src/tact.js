@@ -32,6 +32,7 @@ class Tact {
     }
 
     connect() {
+        tactJs.default.registerFile('ping', '{"ping":"pong"}');
         tactJs.default.socket.connect()
     }
 

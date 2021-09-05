@@ -48,6 +48,7 @@ class bhapticsPlayer {
 
     launch() {
         this.defineGameIp(this.api.config.ip)
+        
         tact
             .onFileLoaded((file) => {
                 this.sendEvent('tact-device-fileLoaded', file)
@@ -68,6 +69,7 @@ class bhapticsPlayer {
                 this.sendEvent('tact-device-disconnected', message.message) }
             )
             .connect()
+
     }
 
     defineGameIp(ip) {
@@ -125,7 +127,7 @@ class bhapticsPlayer {
     }
 
     updateSetting(arg) {
-        console.log('update')
+
         const { effect } = arg
 
         const intensity = arg.intensity || this.api.config.effects[effect].intensity
@@ -134,13 +136,12 @@ class bhapticsPlayer {
         if (false === arg.enable) {
             enable = false
         }
-        
-        const enable = arg.enable || this.api.config.effects[effect].enable
-        console.log(arg.enable)
+
         let val = parseFloat(intensity)
         val = Math.max(0.2, val)
         val = Math.min(5.0, val)
         console.log(enable)
+        console.log(arg.enable)
         this.api.setEffectSetting(effect, {
             intensity: val,
             enable
