@@ -132,14 +132,13 @@ class bhapticsPlayer {
         const intensity = arg.intensity || this.api.config.effects[effect].intensity
 
         let enable = this.api.config.effects[effect].enable
-        if (false === arg.enable) {
-            enable = false
+        if (false === arg.enable || true === arg.enable) {
+            enable = arg.enable
         }
 
         let val = parseFloat(intensity)
         val = Math.max(0.2, val)
         val = Math.min(5.0, val)
-        console.log(enable)
         this.api.setEffectSetting(effect, {
             intensity: val,
             enable
