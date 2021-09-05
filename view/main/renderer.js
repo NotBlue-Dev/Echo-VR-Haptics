@@ -17,7 +17,8 @@ const logInElement = (console, element) => {
     if (!console) {
         console = {};
     }
-    console.log = function (message) {
+    console.log = function (message, register = true) {
+        register && ipcRenderer.send('log', message)
         let d = new Date();
         let n = d.toLocaleTimeString();
         if (typeof message == 'object') {
@@ -121,4 +122,12 @@ window.addEventListener('DOMContentLoaded', () => {
             ipcRenderer.send('define-ip', response)
         })
     })
+
+    ipcRenderer.on('data-updated', (event, arg) => {
+        replaceText('#statusIP', arg.statusIp, arg.statusIpValid ? '#00D832' : '#ff3920')
+        replaceText('#statusHaptic', arg.statusHaptic ? 'Running and ready to go' : 'Not Running !', arg.statusHaptic ? '#00D832' : '#FFBB00')
+        arg.logs.forEach((message) => console.log(message, false))
+    })
+
+    ipcRenderer.send('get-data')
 })
