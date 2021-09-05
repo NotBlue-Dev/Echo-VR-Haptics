@@ -129,7 +129,12 @@ class bhapticsPlayer {
         const { effect } = arg
 
         const intensity = arg.intensity || this.api.config.effects[effect].intensity
-        //FIXME : return api.config meme quand y'a un arg enable donc casser
+
+        let enable = this.api.config.effects[effect].enable
+        if (false === arg.enable) {
+            enable = false
+        }
+        
         const enable = arg.enable || this.api.config.effects[effect].enable
         console.log(arg.enable)
         let val = parseFloat(intensity)
