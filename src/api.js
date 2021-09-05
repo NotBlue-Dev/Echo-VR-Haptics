@@ -1,6 +1,4 @@
 const fetch = require('node-fetch');
-const fs = require("fs");
-const path = require("path");
 const Heart = require("./effects/heart");
 const Stunned = require("./effects/stunned");
 const Grab = require("./effects/grab");
@@ -11,38 +9,51 @@ const GameData = require("./gameData");
 const Wall = require("./effects/wall");
 const Boost = require("./effects/boost");
 
-let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../config.json'), 'utf8'))
-
-let optHeart = {intensity: config.files[config.files.findIndex(x=>x.name === 'heart')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'heart')].dur}
-let optStunned = {intensity: config.files[config.files.findIndex(x=>x.name === 'stunned')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stunned')].dur}
-let optGrab = {intensity: config.files[config.files.findIndex(x=>x.name === 'grab')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'grab')].dur}
-let optGoal = {intensity: config.files[config.files.findIndex(x=>x.name === 'goal')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'goal')].dur}
-let optShield = {intensity: config.files[config.files.findIndex(x=>x.name === 'shield')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'shield')].dur}
-let optWall = {intensity: config.files[config.files.findIndex(x=>x.name === 'wall')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'wall')].dur}
-let optBoost = {intensity: config.files[config.files.findIndex(x=>x.name === 'boost')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'boost')].dur}
-let optStun = {intensity: config.files[config.files.findIndex(x=>x.name === 'stun')].intens, duration: config.files[config.files.findIndex(x=>x.name === 'stun')].dur}
-
 class Api {
 
-    constructor(tactPlay, sendEvent, options) {
+    constructor(tactPlay, sendEvent, config) {
         this.tactPlay = tactPlay
         this.sendEvent = sendEvent
-
-        this.effects = this.initializeEffects(options, this.tactPlay)
+        this.config = config
+        this.effects = []
+        console.log(config)
+        this.initializeEffects()
     }
 
-    initializeEffects(options, tactPlay) {
-        const effects = []
-        options.heart && effects.push(new Heart(tactPlay, optHeart))
-        options.stunned && effects.push(new Stunned(tactPlay, optStunned))
-        options.grab && effects.push(new Grab(tactPlay, optGrab))
-        options.goal && effects.push(new Goal(tactPlay, optGoal))
-        options.shield && effects.push(new Shield(tactPlay, optShield))
-        options.stun && effects.push(new Stun(tactPlay, optStun))
-        options.boost && effects.push(new Boost(tactPlay, optBoost))
-        options.wall && effects.push(new Wall(tactPlay, optWall))
+    initializeEffects() {
+        this.effects = []
+        const effectClass = {
+            heart: Heart,
+            stunned: Stunned,
+            grab: Grab,
+            goal: Goal,
+            shield: Shield,
+            stun: Stun,
+            boost: Boost,
+            wall: Wall
+        }
 
-        return effects;
+        for (const [name, effect] of Object.entries(this.config.effects)) {
+            effect.enable && this.effects.push(new (effectClass[name])(this.tactPlay, {
+                intensity: effect.intensity,
+                duration: effect.duration
+            }))
+        }
+    }
+
+    setEffectsSetting(settings) {
+        this.config.effects = settings
+
+        this.initializeEffects()
+    }
+
+    setEffectSetting(name, options) {
+        this.config.effects[name] = {
+            ...this.config.effects[name],
+            ...options
+        }
+
+        this.initializeEffects()
     }
 
     setPlayerIp(ip) {
@@ -52,10 +63,8 @@ class Api {
     playId() {
         fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
             const gameData = new GameData(json)
-            if (false === gameData.isPlayerInGame()) {
-                this.sendEvent('api-player-not-in-game')
-            }
             this.playerTeamLength = gameData.playerTeamLength
+            
         })
     }
 
@@ -63,15 +72,8 @@ class Api {
         fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
             const gameData = new GameData(json)
 
-            if (false === gameData.isInMatch()) {
-                this.request()
-                return
-            }
-
-            if (false === gameData.isPlayerInGame()) {
-                console.log(`Connected to ${this.playerIp}, Echo Arena API, logging ${this.playerName}`)
-                this.playId()
-                this.request()
+            if (!gameData.isInMatch()) {
+                console.log('not in match')
                 return
             }
 

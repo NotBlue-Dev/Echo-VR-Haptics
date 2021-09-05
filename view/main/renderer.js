@@ -5,18 +5,6 @@ const fs = require('fs')
 const path = require('path');
 const prompt = require("electron-prompt");
 
-let ip;
-
-let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
-
-let options = {}
-
-config.files.forEach((value) => {
-    options[value.name] = value.state
-})
-
-ip = config.ip;
-
 //electron
 
 const replaceText = (selector, text, color) => {
@@ -43,23 +31,22 @@ const logInElement = (console, element) => {
 window.addEventListener('DOMContentLoaded', () => {
     logInElement(console, document.getElementById('logging'))
 
-    let opts = document.querySelector('#opts')
-
-    opts.addEventListener('click', e => {
-        window.location.href = "../settings/index.html";
+    let optionsElement = document.getElementById('opts')
+    optionsElement && optionsElement.addEventListener('click', () => {
+        window.location.href = '../settings/index.html';
     })
 
     fs.readFile(path.join(__dirname, '../../package.json'), 'utf8', function(err, data){
         replaceText('#appversion', JSON.parse(data).version)
     });
     
-    let close = document.querySelector("#close");
-    close.addEventListener("click", () => {
+    let closeElement = document.getElementById('close');
+    closeElement && closeElement.addEventListener('click', () => {
         win.close();
     });
 
-    let find = document.querySelector("#find");
-    find.addEventListener("click", () => {
+    let findIpElement = document.getElementById('find');
+    findIpElement && findIpElement.addEventListener('click', () => {
         prompt({
             title: 'Quest or PC',
             label: 'Enter your device (Quest or PC)',

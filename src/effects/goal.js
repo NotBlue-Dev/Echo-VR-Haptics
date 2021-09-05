@@ -9,16 +9,15 @@ class Goal {
 
     handle(gameData) {
         if (this.orangePoints === null || this.bluePoints === null) {
-            this.bluePoints = gameData.bluePoints
-            this.orangePoints = gameData.orangePoints
+            this.bluePoints = gameData.bluepoints
+            this.orangePoints = gameData.orangepoints
             return
         }
-
-        if (this.orangePoints !== gameData.orangePoints || this.bluePoints !== gameData.bluePoints) {
+        if (this.orangePoints != gameData.orangepoints || this.bluePoints != gameData.bluepoints) {
             console.log('goal')
             this.tactPlay('goal', this.options);
-            this.bluePoints = gameData.bluePoints
-            this.orangePoints = gameData.orangePoints
+            this.bluePoints = gameData.bluepoints
+            this.orangePoints = gameData.orangepoints
         }
     }
 }

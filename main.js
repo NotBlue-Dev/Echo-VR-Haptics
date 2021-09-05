@@ -3,27 +3,24 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const bhapticsPlayer = require('./src/bhapticsPlayer')
 const dev = true
 
+//FIXME : On peut pas reload/ passer de settings a main sans que ca crash
+
 const start = (webContents) => {
-  const player = new bhapticsPlayer((channel, args) => {
+  const sendEvent = (channel, args) => {
     if ((typeof webContents.send) === 'function') {
       webContents.send(channel, args)
     } else {
-      console.log('can send event')
+      console.log('can not send event')
     }
-  })
+  }
 
-  ipcMain.on('find-ip', function (event, arg) {
-    player.findIp(arg)
-  })
+  const listenEvent = (channel, callable) => {
+    ipcMain.on(channel, function (event, arg) {
+      callable(arg, event)
+    })
+  }
 
-  ipcMain.on('define-ip', function (event, arg) {
-    player.defineGameIp(arg)
-  })
-
-  ipcMain.on('save-config', function () {
-    player.save()
-  })
-
+  const player = new bhapticsPlayer(sendEvent, listenEvent)
   player.launch()
 }
 
@@ -50,8 +47,9 @@ const createWindow = () => {
         start(mainWindow.webContents)
       })
       .catch((err) => console.error(err))
-  // comment for prod Version
 }
+
+app.allowRendererProcessReuse = false;
 
 app.whenReady().then(() => {
   createWindow()
