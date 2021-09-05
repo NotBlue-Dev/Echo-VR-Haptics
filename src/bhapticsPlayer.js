@@ -12,6 +12,7 @@ class bhapticsPlayer {
         this.hapticsConnectionState = false
         this.playEffectFunction = tact.playEffect
         this.api = new api(this.playEffectFunction, this.sendEvent, this.loadConfig())
+        this.logs = []
         this.initializeListeners()
     }
 
@@ -44,6 +45,8 @@ class bhapticsPlayer {
         this.listenEvent('play-effect', this.playEffect.bind(this))
         this.listenEvent('default-settings', this.setDefaultSettings.bind(this))
         this.listenEvent('get-settings', this.getSettings.bind(this))
+        this.listenEvent('get-data', this.getData.bind(this))
+        this.listenEvent('log', this.addLog.bind(this))
     }
 
     launch() {
@@ -57,7 +60,7 @@ class bhapticsPlayer {
             })
             .onConnected(() => {
                 //sinon start 4-5 fois la boucle et send l'event plusieurs fois
-                if(this.hapticsConnectionState != true) {
+                if(this.hapticsConnectionState !== true) {
                     this.hapticsConnectionState = true
                     this.sendEvent('tact-device-connected', {})
                     this.startRequest()
@@ -96,7 +99,6 @@ class bhapticsPlayer {
     startRequest() {
         if (this.isReady()) {
             this.api.request()
-            return
         }
     }
 
@@ -125,7 +127,6 @@ class bhapticsPlayer {
     }
 
     updateSetting(arg) {
-        console.log('update')
         const { effect } = arg
 
         const intensity = arg.intensity || this.api.config.effects[effect].intensity
@@ -134,9 +135,7 @@ class bhapticsPlayer {
         if (false === arg.enable) {
             enable = false
         }
-        
-        const enable = arg.enable || this.api.config.effects[effect].enable
-        console.log(arg.enable)
+
         let val = parseFloat(intensity)
         val = Math.max(0.2, val)
         val = Math.min(5.0, val)
@@ -159,6 +158,20 @@ class bhapticsPlayer {
     playEffect(arg) {
         const { names } = arg
         this.playEffectFunction(names, this.api.config.effects[names])
+    }
+
+    getData() {
+        console.log('get data')
+        this.sendEvent('data-updated', {
+            statusIp: this.api.config.ip,
+            statusIpValid: this.gameIpState,
+            statusHaptic: this.hapticsConnectionState,
+            logs: this.logs,
+        })
+    }
+
+    addLog(arg) {
+        this.logs.push(arg)
     }
 }
 
