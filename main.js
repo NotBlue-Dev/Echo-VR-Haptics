@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const bhapticsPlayer = require('./src/bhapticsPlayer')
-const dev = true
+const dev = false
 
 const start = (webContents) => {
   const sendEvent = (channel, args) => {
