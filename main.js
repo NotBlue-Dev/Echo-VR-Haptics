@@ -2,8 +2,6 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const bhapticsPlayer = require('./src/bhapticsPlayer')
 const dev = true
 
-//FIXME : On peut pas reload/ passer de settings a main sans que ca crash
-
 const start = (webContents) => {
   const sendEvent = (channel, args) => {
     if ((typeof webContents.send) === 'function') {

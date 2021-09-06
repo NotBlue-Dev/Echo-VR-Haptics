@@ -7,20 +7,18 @@ class Boost {
         this.tempVelocMax = 24.95
         this.tempVeloc = 0
         this.nextTimeStamp = 0
-        //FIXME : rentrer la valeur de la durée du boost
-        this.boostLenght = 0
+        this.boostLenght = 1000
     }
 
     handle(gameData) {
         const velocity = gameData.player.velocity
-
+        const player = gameData.player
         const pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2) + Math.pow(velocity[2], 2);
+        const currentTimeStamp = Date.now()
 
-        const currentTimeStamp = Date.now().getTime()
-    
-        if(this.nextTimeStamp >= currentTimeStamp) {
+        if(currentTimeStamp >= this.nextTimeStamp) {
             this.tempVeloc = pyVeloc + 6.56
-            this.nextTimeStamp += this.boostLenght
+            this.nextTimeStamp = currentTimeStamp + this.boostLenght
         }
 
         //Boost 6.56 24.95
@@ -29,7 +27,10 @@ class Boost {
             this.tempVeloc = 24.94
         }
 
-        if (!(pyVeloc >= 24.94) && (pyVeloc >= this.tempVeloc - 0.12 && pyVeloc <= this.tempVeloc + 0.12) && this.boost1 === false) {
+        if (!(pyVeloc >= 24.94) 
+        && (pyVeloc >= this.tempVeloc - 0.12 && pyVeloc <= this.tempVeloc + 0.12) && this.boost1 === false
+        && (player.holding_left === "none")
+        && (player.holding_right === "none")) {
             this.boost1 = true;
             console.log('BOOST 1')
             this.tactPlay('boost', this.options);
@@ -38,7 +39,9 @@ class Boost {
             }, 1000);
         }
 
-        if ((pyVeloc >= this.tempVelocMax - 0.05 && pyVeloc <= this.tempVelocMax + 0.05) && this.boost2 === false) {
+        if ((pyVeloc >= this.tempVelocMax - 0.05 && pyVeloc <= this.tempVelocMax + 0.05) && this.boost2 === false 
+        && (player.holding_left === "none")
+        && (player.holding_right === "none")) {
             this.boost2 = true;
             console.log('BOOST 2')
             this.tactPlay('boost', this.options);

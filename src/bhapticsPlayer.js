@@ -157,7 +157,7 @@ class bhapticsPlayer {
     }
 
     playEffect(arg) {
-        const { names } = arg
+        const names  = arg.effect
         this.playEffectFunction(names, this.api.config.effects[names])
     }
 

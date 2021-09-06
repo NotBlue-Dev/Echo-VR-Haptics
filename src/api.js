@@ -67,23 +67,28 @@ class Api {
     }
 
     request() {
+        
         fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
             const gameData = new GameData(json)
-
+            
             if (!gameData.isInMatch()) {
                 console.log('not in match')
-                return
+                setTimeout(() => {
+                    this.request()
+                }, 3000);
+            } else {   
+                if (this.playerTeamLength !== gameData.playerTeamLength) {
+                    this.playId()
+                }
+
+                this.effects.forEach((effect) => {
+                    effect.handle(gameData)
+                })
+
+                this.request()
             }
 
-            if (this.playerTeamLength !== gameData.playerTeamLength) {
-                this.playId()
-            }
-
-            this.effects.forEach((effect) => {
-                effect.handle(gameData)
-            })
-
-            this.request() //restart request
+             //restart request
 
         }).catch(error => {
             if (error.response) {

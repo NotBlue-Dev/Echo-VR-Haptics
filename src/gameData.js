@@ -1,7 +1,6 @@
 class GameData {
     constructor(json) {
-        // const playerName = json.client_name;
-        const playerName = 'scag-'
+        const playerName = json.client_name;
         this.NameOfPlayer = playerName;
         this.blueTeamPlayers = json.teams[0].players;
         this.orangeTeamPlayers = json.teams[1].players;
