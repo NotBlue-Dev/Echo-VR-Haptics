@@ -68,7 +68,6 @@ class Api {
     }
 
     request() {
-        console.log('fetch')
         fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
             const gameData = new GameData(json)
             

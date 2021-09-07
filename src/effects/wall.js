@@ -13,11 +13,9 @@ class Wall {
         const pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2) + Math.pow(velocity[2], 2);
 
         if ((this.lastVel / 2 > pyVeloc && this.lastVel > 24 && pyVeloc > 24)
-            && (player.holding_left === "none")
-            && (player.holding_right === "none")
+        && gameData.isPlayerGrabbingSomething()
         ) {
             this.tactPlay('wall', this.options);
-            console.log('hit wall')
         }
         this.lastVel = pyVeloc
     }

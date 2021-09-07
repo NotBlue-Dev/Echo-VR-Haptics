@@ -1,7 +1,6 @@
 class GameData {
     constructor(json) {
-        // const playerName = json.client_name;
-        const playerName ='Welsh-';
+        const playerName = json.client_name;
         this.NameOfPlayer = playerName;
         this.blueTeamPlayers = json.teams[0].players;
         this.orangeTeamPlayers = json.teams[1].players;
@@ -40,6 +39,15 @@ class GameData {
 
     isPlaying() {
         return this.status === 'playing'
+    }
+
+    isPlayerGrabbingSomething() {
+        return this.player.holding_left !== 'none' || this.player.holding_right !== 'none'
+    }
+
+    isPlayerGrabbedBy(otherPlayer) {
+        //pas triple egal ! l'api retourne holding sous forme de string
+        return otherPlayer.holding_right == this.playerId || otherPlayer.holding_left == this.playerId
     }
 }
 

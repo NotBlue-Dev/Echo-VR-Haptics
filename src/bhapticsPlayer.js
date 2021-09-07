@@ -91,11 +91,9 @@ class bhapticsPlayer {
     save() {
         fs.writeFile(path.join(__dirname, `../config.json`), JSON.stringify(this.api.config), (err) => {
             if (err) {
-                console.log('save failed')
                 this.sendEvent('config-save-failed')
                 return
             }
-            console.log('save success')
             this.sendEvent('config-save-success')
         });
     }
@@ -106,7 +104,7 @@ class bhapticsPlayer {
             this.api.request()
         }
     }
-    
+
     stopRequest() {
         this.api.state = false;
     }
@@ -169,7 +167,7 @@ class bhapticsPlayer {
     }
 
     getData() {
-        console.log('get data')
+
         this.sendEvent('data-updated', {
             statusIp: this.api.config.ip,
             statusIpValid: this.gameIpState,

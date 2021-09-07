@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const bhapticsPlayer = require('./src/bhapticsPlayer')
-const dev = false
+require('dotenv').config()
+const dev = (process.env.NODE_ENV === 'development')
 
 const start = (webContents) => {
   const sendEvent = (channel, args) => {
@@ -22,7 +23,6 @@ const start = (webContents) => {
 }
 
 const createWindow = () => {
-  console.log('window create')
   const mainWindow = new BrowserWindow({
     width:685,
     height:850,

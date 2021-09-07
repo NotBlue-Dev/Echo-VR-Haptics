@@ -10,7 +10,6 @@ class Stunned {
         const player = gameData.player
         if (player.stunned === true && this.stunned === false) {
             this.stunned = true;
-            console.log('stunned')
             this.tactPlay('stunned', this.options)
             setTimeout(() => {
                 this.stunned = false;

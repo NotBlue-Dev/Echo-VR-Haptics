@@ -14,16 +14,13 @@ class Heart {
         const floatClock = +(clock)
         if (floatClock < 0.30 && this.end === false && gameData.isInMatch() && gameData.isPlaying()) {
             this.end = true;
-            console.log('heartbeat')
             let heartBeat = setInterval(() => {
-                if (!(gameData.isInMatch()) || !(gameData.isPlaying())) {
-                    clearInterval(this.interval)
-                    console.log('stop heartbeat')
-                    this.end = false
-                }
                 this.tactPlay('heart', this.options);
             }, 800);
             this.interval = heartBeat
+        }
+        if (!(gameData.isInMatch()) || !(gameData.isPlaying()) && this.end === true) {
+            this.end = false
         }
     }
 }

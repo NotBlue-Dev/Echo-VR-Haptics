@@ -14,7 +14,6 @@ class Goal {
             return
         }
         if (this.orangePoints != gameData.orangepoints || this.bluePoints != gameData.bluepoints) {
-            console.log('goal')
             this.tactPlay('goal', this.options);
             this.bluePoints = gameData.bluepoints
             this.orangePoints = gameData.orangepoints
