@@ -64,6 +64,13 @@ const WebSocket = require('ws');
                   console.log('PlayerSocket', e);
                   return;
               }
+              _this.websocketClient.onerror = function (err) {
+                  _this.currentStatus = STATUS.DISCONNECT;
+                  _this.emit({
+                      status: _this.currentStatus,
+                      message: err.message,
+                  });
+              }
               _this.websocketClient.onopen = function () {
                   _this.currentStatus = STATUS.CONNECTED;
                   _this.emit({

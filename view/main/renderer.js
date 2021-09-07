@@ -1,148 +1,134 @@
-const {remote} = require('electron');
+const { remote, ipcRenderer } = require('electron');
+
 const win = remote.BrowserWindow.getFocusedWindow();
-const ipFinder = require('../../js/ipFinder.js');
-const bhaptic = require('../../js/tact.js');
-const fs = require('fs')
-const WebSocket = require('ws');
+const fs = require('fs');
 
 const path = require('path');
+const prompt = require('electron-prompt');
 
-let ip;
-let pseudo;
-let pause = false;
+// electron
 
-let config = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'))
+const replaceText = (selector, text, color) => {
+  const element = document.querySelector(selector);
+  element && (element.innerText = text);
+  element && color && (element.style.color = color);
+};
 
-let options = {}
-
-config.files.forEach((value) => {
-    options[value.name] = value.state
-})
-
-ip = config.ip;
-pseudo = config.pseudo;
-
-bhaptic().then((txt) => {
-    if(txt != true) {
-        console.log('Bhaptic player as an issue');  
+const logInElement = (console, element) => {
+  if (!console) {
+    console = {};
+  }
+  console.log = function (message, register = true) {
+    register && ipcRenderer.send('log', message);
+    const d = new Date();
+    const n = d.toLocaleTimeString();
+    if (typeof message === 'object') {
+      element.innerHTML += `${JSON && JSON.stringify ? JSON.stringify(message) : String(message)}<br />`;
     } else {
-        console.log('Connected to Bhaptic Player')
+      element.innerHTML += `[${n}] ${message}<br />`;
     }
-})
-
-//electron
-
-const replaceText = (selector, text) => {
-    const element = document.querySelector(selector)
-    if (element) element.innerText = text
-}
+  };
+};
 
 window.addEventListener('DOMContentLoaded', () => {
+  logInElement(console, document.getElementById('logging'));
 
-    //check if bhaptic player reply to ping
-    check(true)
+  const optionsElement = document.getElementById('opts');
+  optionsElement && optionsElement.addEventListener('click', () => {
+    window.location.href = '../settings/index.html';
+  });
 
-    let opts = document.querySelector('#opts')
+  fs.readFile(path.join(__dirname, '../../package.json'), 'utf8', (err, data) => {
+    replaceText('#appversion', JSON.parse(data).version);
+  });
 
-    opts.addEventListener('click', e => {
-        window.location.href = "../settings/index.html";
-    })
+  const closeElement = document.getElementById('close');
+  closeElement && closeElement.addEventListener('click', () => {
+    win.close();
+  });
 
-    fs.readFile(path.join(__dirname, '../../package.json'), 'utf8', function(err, data){
-        replaceText('#appversion', JSON.parse(data).version)
+  const findIpElement = document.getElementById('find');
+  findIpElement && findIpElement.addEventListener('click', () => {
+    prompt({
+      title: 'Quest or PC',
+      label: 'Enter your device (Quest or PC)',
+      value: '',
+      type: 'input',
+    }).then((response) => {
+      const body = document.querySelector('#body');
+      body && (body.style.cursor = 'progress');
+      ipcRenderer.send('find-ip', response);
     });
-    
-    let close = document.querySelector("#close");
-    close.addEventListener("click", () => {
-        win.close();
+  });
+
+  ipcRenderer.on('tact-device-connecting', () => {
+    console.log('Connecting…');
+  });
+
+  ipcRenderer.on('tact-device-connected', () => {
+    console.log('Connected to Bhaptic Player');
+    replaceText('#statusHaptic', 'Running and ready to go', '#00D832');
+  });
+
+  ipcRenderer.on('tact-device-disconnected', () => {
+    console.log('/!\\ Disconnected');
+    replaceText('#statusHaptic', 'Not Running !', '#FFBB00');
+  });
+
+  ipcRenderer.on('tact-device-fileLoaded', (event, arg) => {
+    console.log(`File loaded ${arg}`);
+  });
+
+  ipcRenderer.on('game-ip-defined', (event, arg) => {
+    replaceText('#statusIP', arg, '#00D832');
+    ipcRenderer.send('save-config');
+  });
+
+  ipcRenderer.on('game-ip-bad-defined', (event, arg) => {
+    replaceText('#statusIP', arg, '#ff3920');
+  });
+
+  ipcRenderer.on('find-ip-canceled', () => {
+    console.log('canceled');
+    const body = document.querySelector('#body');
+    body && (body.style.cursor = 'default');
+    console.log('user cancelled');
+  });
+
+  ipcRenderer.on('find-ip-failed', (event, arg) => {
+    console.log('failed');
+    console.log(arg);
+    const body = document.querySelector('#body');
+    body && (body.style.cursor = 'default');
+    prompt({
+      title: "Can't find IP, enter manually",
+      label: 'Enter Quest IP',
+      value: '',
+      type: 'input',
+    }).then((response) => {
+      ipcRenderer.send('define-ip', response);
     });
+  });
 
-    let find = document.querySelector("#find");
-    find.addEventListener("click", () => {
-        pause = true;
-        ipFinder().then((obj)=> {
-            ip = obj.ip;
-            pseudo = obj.pseudo;
-            win.reload()
-            pause = false;
-        }).catch((err)=> {
-            if(err == 'cancel') {
-                ip = config.ip
-                pseudo = config.pseudo
-            } else {
-                ip = err
-                pseudo = config.pseudo
-                playId(true)
-                check(false)
-                pause = false;
-            }
-        })
+  ipcRenderer.on('find-ip-timeout', () => {
+    console.log('timeout');
+    const body = document.querySelector('#body');
+    body && (body.style.cursor = 'default');
+    prompt({
+      title: "Can't find IP, enter manually",
+      label: 'Enter Quest IP',
+      value: '',
+      type: 'input',
+    }).then((response) => {
+      ipcRenderer.send('define-ip', response);
     });
+  });
 
-    //logging
-    (function () {
-        if (!console) {
-            console = {};
-        }
-        const old = console.log;
-        const loggers = document.querySelector('#logging');
-        console.log = function (message) {
-            let d = new Date();
-            let n = d.toLocaleTimeString();
-            if (typeof message == 'object') {
-                loggers.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : String(message)) + '<br />';
-            } else {
-                loggers.innerHTML += "[" + n + "] " + message + '<br />';
-            }
-            
-        }
-    })();
+  ipcRenderer.on('data-updated', (event, arg) => {
+    replaceText('#statusIP', arg.statusIp, arg.statusIpValid ? '#00D832' : '#ff3920');
+    replaceText('#statusHaptic', arg.statusHaptic ? 'Running and ready to go' : 'Not Running !', arg.statusHaptic ? '#00D832' : '#FFBB00');
+    arg.logs.forEach((message) => console.log(message, false));
+  });
 
-})
-
-let ipState = false;
-let nickState = false;
-let hapticState = false;
-
-function check(bool) {
-
-    const ws = new WebSocket('ws://127.0.0.1:15881/v2/feedbacks?app_id=com.bhaptics.designer2&app_name=bHaptics Designer');
-
-    ws.on('open', function open() {
-        replaceText('#statusHaptic', 'Running and ready to go')
-        let element = document.querySelector('#statusHaptic')
-        element.style.color = '#00D832'
-        hapticState = true;
-        if(hapticState && nickState && ipState && bool == true) {
-            request()
-        }
-    });
-
-    ws.on('error', (error) => {
-        replaceText('#statusHaptic', 'Not Running !')
-        let element = document.querySelector('#statusHaptic')
-        element.style.color = '#FFBB00'
-    })
-
-    if(config.ip != undefined && config.ip != '') {
-        replaceText('#statusIP', config.ip )
-        let element = document.querySelector('#statusIP')
-        element.style.color = '#00D832'
-        ipState = true;
-    }
-    
-    if(config.pseudo != undefined && config.pseudo != '' && checks != false) {
-        replaceText('#statusName', config.pseudo )
-        let element = document.querySelector('#statusName')
-        element.style.color = '#00D832'
-        nickState = true;
-    }
-
-    setTimeout(() => {
-        ws.close()
-    }, 3000);
-}
-
-setInterval(() => {
-    check(false)
-}, 3000);
+  ipcRenderer.send('get-data');
+});

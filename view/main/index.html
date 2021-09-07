@@ -1,12 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>Echo Arena VR BHapticsPlayer</title>
     <link rel="stylesheet" href="style.css">
     <script src="./renderer.js"></script>
-    <script src="../../js/api.js"></script>
-    <script src="../../js/ipFinder.js"></script>
   </head>
   <body id="body">
     <div class="header">
@@ -34,12 +32,6 @@
         </div>
       </div>
       <div class="line">
-        <a class="title">Playername</a>
-        <div class="box">
-          <a><span id="statusName" style="color:#FFBB00;">Not Set !</span></a>
-        </div>
-      </div>
-      <div class="line">
         <a class="title">Options</a>
         <div class="btn" id="opts">
           <a>Open settings</a>
@@ -56,8 +48,8 @@
     <div class="txt">
       <p class="title">Notice</p>
       <p>
-        <span id="blue">Bhaptic</span> must be running<br>
-        <span id="blue">API</span> must be enable on <span id="blue">echo arena</span> client
+        <span class="blue">Bhaptic</span> must be running<br>
+        <span class="blue">API</span> must be enable on <span class="blue">echo arena</span> client
       </p>
     </div>
 
@@ -69,9 +61,6 @@
         <a >Close</a>
       </div>
     </div>
-    
-    <!-- Uncomment for prod -->
-    <script src = "../../js/update.js"></script>
   </body>
 </html>
 

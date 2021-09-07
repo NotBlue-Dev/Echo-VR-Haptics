@@ -1,9 +1,28 @@
+const { app, BrowserWindow, ipcMain } = require('electron')
+const bhapticsPlayer = require('./src/bhapticsPlayer')
+require('dotenv').config()
+const dev = (process.env.NODE_ENV === 'development')
 
-const {app, BrowserWindow} = require('electron')
-const path = require('path')
+const start = (webContents) => {
+  const sendEvent = (channel, args) => {
+    if ((typeof webContents.send) === 'function') {
+      webContents.send(channel, args)
+    } else {
+      console.log('can not send event')
+    }
+  }
 
-function createWindow () {
+  const listenEvent = (channel, callable) => {
+    ipcMain.on(channel, function (event, arg) {
+      callable(arg, event)
+    })
+  }
 
+  const player = new bhapticsPlayer(sendEvent, listenEvent)
+  player.launch()
+}
+
+const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width:685,
     height:850,
@@ -20,20 +39,22 @@ function createWindow () {
     title:'haptic',
   })
   mainWindow.loadFile('./view/main/index.html')
-  // comment for prod Version
-  //mainWindow.webContents.openDevTools()
-  
+      .then(() => {
+        dev && mainWindow.webContents.openDevTools()
+        start(mainWindow.webContents)
+      })
+      .catch((err) => console.error(err))
 }
+
+app.allowRendererProcessReuse = false;
 
 app.whenReady().then(() => {
   createWindow()
-
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    BrowserWindow.getAllWindows().length === 0 && createWindow()
   })
 })
 
-
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
+  process.platform !== 'darwin' && app.quit()
 })
