@@ -47,6 +47,8 @@ class bhapticsPlayer {
         this.listenEvent('get-settings', this.getSettings.bind(this))
         this.listenEvent('get-data', this.getData.bind(this))
         this.listenEvent('log', this.addLog.bind(this))
+        this.listenEvent('startRequest', this.startRequest.bind(this))
+        this.listenEvent('stopRequest', this.stopRequest.bind(this))
     }
 
     launch() {
@@ -100,8 +102,13 @@ class bhapticsPlayer {
 
     startRequest() {
         if (this.isReady()) {
+            this.api.state = true;
             this.api.request()
         }
+    }
+    
+    stopRequest() {
+        this.api.state = false;
     }
 
     isReady() {
@@ -155,7 +162,7 @@ class bhapticsPlayer {
     getSettings() {
         this.sendEvent('settings-updated', this.api.config.effects)
     }
-
+    
     playEffect(arg) {
         const names  = arg.effect
         this.playEffectFunction(names, this.api.config.effects[names])

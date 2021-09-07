@@ -14,6 +14,7 @@ class Api {
         this.tactPlay = tactPlay
         this.sendEvent = sendEvent
         this.config = config
+        this.state = true
         this.effects = []
         this.initializeEffects()
     }
@@ -67,28 +68,25 @@ class Api {
     }
 
     request() {
-        
+        console.log('fetch')
         fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
             const gameData = new GameData(json)
             
             if (!gameData.isInMatch()) {
-                console.log('not in match')
-                setTimeout(() => {
-                    this.request()
-                }, 3000);
-            } else {   
-                if (this.playerTeamLength !== gameData.playerTeamLength) {
-                    this.playId()
-                }
+                return
+            }   
 
-                this.effects.forEach((effect) => {
-                    effect.handle(gameData)
-                })
-
-                this.request()
+            if (this.playerTeamLength !== gameData.playerTeamLength) {
+                this.playId()
             }
 
-             //restart request
+            this.effects.forEach((effect) => {
+                effect.handle(gameData)
+            })
+
+            if(this.state !== false) {
+                this.request()
+            }
 
         }).catch(error => {
             if (error.response) {
