@@ -40,6 +40,14 @@ class GameData {
     isPlaying() {
         return this.status === 'playing'
     }
+
+    isPlayerGrabbingSomething() {
+        return this.player.holding_left !== 'none' || this.player.holding_right !== 'none'
+    }
+
+    isPlayerGrabbedBy(otherPlayer) {
+        return otherPlayer.holding_right === this.playerId || otherPlayer.holding_left === this.playerId
+    }
 }
 
 module.exports = GameData

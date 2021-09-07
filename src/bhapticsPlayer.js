@@ -162,7 +162,7 @@ class bhapticsPlayer {
     }
 
     getData() {
-        console.log('get data')
+
         this.sendEvent('data-updated', {
             statusIp: this.api.config.ip,
             statusIpValid: this.gameIpState,
