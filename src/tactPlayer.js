@@ -1,39 +1,17 @@
 ﻿const api = require('./api')
-const fs = require("fs");
-const path = require("path");
 
 class TactPlayer {
-    constructor(tact, ipFinder, sendEvent, listenEvent) {
+    constructor(tact, ipFinder, configLoader, sendEvent, listenEvent) {
         this.tact = tact
         this.ipFinder = ipFinder
+        this.configLoader = configLoader
         this.sendEvent = sendEvent
         this.listenEvent = listenEvent
         this.gameIpState = false
         this.hapticsConnectionState = false
-        this.api = new api(this.tact.playEffect, this.sendEvent, this.loadConfig())
         this.logs = []
+        this.api = new api(this.tact.playEffect, this.configLoader.load())
         this.initializeListeners()
-    }
-
-    loadConfig() {
-        const defaultEffectConfigPath = path.join(__dirname, '../assets/default.json');
-        const customConfigPath = path.join(__dirname, '../config.json');
-        
-        return {
-            ip: null,
-            effects: {
-                ...this.loadJsonFile(defaultEffectConfigPath)
-            },
-            ...this.loadJsonFile(customConfigPath)
-        }
-    }
-    
-    loadJsonFile(filePath) {
-        if (fs.existsSync(filePath)) {
-            return JSON.parse(fs.readFileSync(filePath))
-        }
-        
-        return {}
     }
 
     initializeListeners() {
@@ -88,13 +66,13 @@ class TactPlayer {
     }
 
     save() {
-        fs.writeFile(path.join(__dirname, `../config.json`), JSON.stringify(this.api.config), (err) => {
+        this.configLoader.save(this.api.config, (err) => {
             if (err) {
                 this.sendEvent('config-save-failed')
                 return
             }
             this.sendEvent('config-save-success')
-        });
+        })
     }
 
     startRequest() {
@@ -152,7 +130,8 @@ class TactPlayer {
     }
 
     setDefaultSettings() {
-        this.api.setEffectsSetting(JSON.parse(fs.readFileSync(path.join(__dirname, '../assets/default.json'), 'utf8')))
+        const defaultConfig = this.configLoader.loadDefault()
+        this.api.setEffectsSetting(defaultConfig)
         this.getSettings()
     }
 
@@ -166,7 +145,6 @@ class TactPlayer {
     }
 
     getData() {
-
         this.sendEvent('data-updated', {
             statusIp: this.api.config.ip,
             statusIpValid: this.gameIpState,

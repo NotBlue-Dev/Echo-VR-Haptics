@@ -10,9 +10,8 @@ const Wall = require("./effects/wall");
 const Boost = require("./effects/boost");
 
 class Api {
-    constructor(tactPlay, sendEvent, config) {
+    constructor(tactPlay, config) {
         this.tactPlay = tactPlay
-        this.sendEvent = sendEvent
         this.config = config
         this.state = true
         this.effects = []
