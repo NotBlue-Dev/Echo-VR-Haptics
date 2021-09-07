@@ -1,17 +1,16 @@
-﻿const tact = require('./tact')
-const api = require('./api')
-const ipFinder = require('./ipFinder')
+﻿const api = require('./api')
 const fs = require("fs");
 const path = require("path");
 
-class bhapticsPlayer {
-    constructor(sendEvent, listenEvent) {
+class TactPlayer {
+    constructor(tact, ipFinder, sendEvent, listenEvent) {
+        this.tact = tact
+        this.ipFinder = ipFinder
         this.sendEvent = sendEvent
         this.listenEvent = listenEvent
         this.gameIpState = false
         this.hapticsConnectionState = false
-        this.playEffectFunction = tact.playEffect
-        this.api = new api(this.playEffectFunction, this.sendEvent, this.loadConfig())
+        this.api = new api(this.tact.playEffect, this.sendEvent, this.loadConfig())
         this.logs = []
         this.initializeListeners()
     }
@@ -54,7 +53,7 @@ class bhapticsPlayer {
     launch() {
         this.defineGameIp(this.api.config.ip)
         
-        tact
+        this.tact
             .onFileLoaded((file) => {
                 this.sendEvent('tact-device-fileLoaded', file)
             })
@@ -114,12 +113,12 @@ class bhapticsPlayer {
     }
 
     validateIp(ip, callback) {
-        ipFinder.validate(ip).then(() => {this.gameIpState = true}).catch(() => {this.gameIpState = false} ).finally(callback)
+        this.ipFinder.validate(ip).then(() => {this.gameIpState = true}).catch(() => {this.gameIpState = false} ).finally(callback)
     }
 
     findIp(arg) {
         this.gameIpState = false
-        ipFinder.findIp(arg)
+        this.ipFinder.findIp(arg)
             .then((ip)=> {
                 this.defineGameIp(ip)
             }).catch((err) => {
@@ -163,7 +162,7 @@ class bhapticsPlayer {
     
     playEffect(arg) {
         const names  = arg.effect
-        this.playEffectFunction(names, this.api.config.effects[names])
+        this.tact.playEffect(names, this.api.config.effects[names])
     }
 
     getData() {
@@ -181,4 +180,4 @@ class bhapticsPlayer {
     }
 }
 
-module.exports = bhapticsPlayer
+module.exports = TactPlayer

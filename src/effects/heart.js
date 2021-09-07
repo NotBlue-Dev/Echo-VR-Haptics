@@ -19,7 +19,7 @@ class Heart {
             }, 800);
             this.interval = heartBeat
         }
-        if (!(gameData.isInMatch()) || !(gameData.isPlaying()) && this.end === true) {
+        if ((!(gameData.isInMatch()) || !(gameData.isPlaying())) && this.end === true) {
             this.end = false
         }
     }

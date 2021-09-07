@@ -1,7 +1,7 @@
-const tactJs = require('./tact-js/tact-js.umd.js')
+const tactJs = require('../tact-js/tact-js.umd.js')
 const fs = require('fs');
 
-class Tact {
+class BHapticsTactJsAdapter {
     constructor() {
         this.connected = false
         this.handleFileLoaded = () => {}
@@ -73,4 +73,4 @@ class Tact {
     }
 }
 
-module.exports = new Tact()
+module.exports = new BHapticsTactJsAdapter()
