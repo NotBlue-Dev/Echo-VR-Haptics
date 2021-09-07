@@ -11,7 +11,7 @@ class Stun {
             return
         }
 
-        const playerPos = gameData.player.head.position
+        const playerPos = gameData.player.head.position;
 
         (gameData.enemyTeamPlayers || []).forEach((enemyPlayer) => {
             if(enemyPlayer === undefined) {
