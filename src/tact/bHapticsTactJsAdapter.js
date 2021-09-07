@@ -73,4 +73,4 @@ class BHapticsTactJsAdapter {
     }
 }
 
-module.exports = new BHapticsTactJsAdapter()
+module.exports = BHapticsTactJsAdapter

@@ -2,7 +2,7 @@ const arp = require('arp')
 const oui = require('oui')
 const find = require('local-devices');
 
-class ipFinder {
+class IpFinder {
 
     findIp(type) {
         return new Promise((resolve, reject) => {
@@ -52,4 +52,4 @@ class ipFinder {
     }
 }
 
-module.exports = new ipFinder()
+module.exports = IpFinder
