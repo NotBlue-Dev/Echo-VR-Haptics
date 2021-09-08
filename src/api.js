@@ -70,8 +70,8 @@ class Api {
         fetch(`http://${this.playerIp}:6721/session`).then(resp => resp.json()).then(json => {
             const gameData = new GameData(json)
             
-            if (!gameData.isInMatch()) {
-                return
+            if (!gameData.isInMatch() || this.state === false) {
+                throw new Error('Not ready');
             }   
 
             if (this.playerTeamLength !== gameData.playerTeamLength) {
@@ -82,10 +82,7 @@ class Api {
                 effect.handle(gameData)
             })
 
-            if(this.state !== false) {
-                this.request()
-            }
-
+            this.request()
         }).catch(error => {
             if (error.response) {
                 if (error.response.status === 404) {
