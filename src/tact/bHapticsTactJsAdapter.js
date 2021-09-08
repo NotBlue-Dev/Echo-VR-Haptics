@@ -1,5 +1,6 @@
 const tactJs = require('../tact-js/tact-js.umd.js')
 const fs = require('fs');
+const path = require('path')
 
 class BHapticsTactJsAdapter {
     constructor() {
@@ -62,11 +63,11 @@ class BHapticsTactJsAdapter {
     }
 
     loadTactFiles() {
-        fs.readdir(__dirname + '/../assets', {}, (err, files) => {
+        fs.readdir(path.join(__dirname, '../../assets'), {}, (err, files) => {
             files.filter((file) => {
                 return file.match(/([A-z]+).tact$/g) !== null
             }).forEach((value) => {
-                tactJs.default.registerFile(value.split('.')[0] ,fs.readFileSync((__dirname + `/../assets/${value}`)).toString())
+                tactJs.default.registerFile(value.split('.')[0] ,fs.readFileSync(path.join(__dirname, `../../assets/${value}`)).toString())
                 this.handleFileLoaded(value)
             })
         })
