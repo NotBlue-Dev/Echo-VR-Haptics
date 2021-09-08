@@ -49,10 +49,8 @@ class Boost {
             currentVelocity[1] - this.oldVelocity[1],
             currentVelocity[2] - this.oldVelocity[2]
         ]
-        // D’ailleurs, ici, on peut retrouvé le speedDiff directement avec la même formule (on peut surement optimiser le code du coup)
-        const speedDiff = Math.sqrt(velocityDiff[0] ** 2 + velocityDiff[1] ** 2 + velocityDiff[2] ** 2)
 
-        if (speedDiff <= 0) { return; }
+        if (diffspeed <= 0 || diffSpeed > 2.6) { return; }
         
         // On met à jour le oldVelocity, sinon tu vas avoir comme base la première velocité de la game ;)
         this.oldVelocity = currentVelocity
