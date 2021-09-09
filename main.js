@@ -1,8 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const TactPlayer = require('./src/tactPlayer')
-const IpFinder = require('./src/ipFinder')
-const ConfigLoader = require('./src/configLoader')
-const BHapticsTactJsAdapter = require('./src/tact/bHapticsTactJsAdapter')
+
+const echo = require('echomodlib')
+
 require('dotenv').config()
 const dev = (process.env.NODE_ENV === 'development')
 
@@ -21,10 +20,10 @@ const start = (webContents) => {
     })
   }
 
-  const player = new TactPlayer(
-      new BHapticsTactJsAdapter(),
-      new IpFinder(),
-      new ConfigLoader(__dirname),
+  const player = new echo.TactPlayer(
+      new echo.BHapticsTactJsAdapter(),
+      new echo.IpFinder(),
+      new echo.ConfigLoader(__dirname),
       sendEvent,
       listenEvent
   )

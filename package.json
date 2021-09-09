@@ -11,16 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "arp": "0.0.3",
-    "dotenv": "^10.0.0",
+    "echomodlib": "^1.0.2",
     "electron": "^13.1.7",
-    "electron-prompt": "^1.6.2",
-    "local-devices": "^3.1.0",
-    "node-fetch": "^2.6.1",
-    "oui": "^11.0.76",
-    "prompt": "^1.1.0",
-    "tact-js": "^0.3.2",
-    "ws": "^7.5.3"
+    "electron-prompt": "^1.6.2"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
