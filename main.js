@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const bhapticsPlayer = require('./src/bhapticsPlayer')
+
+const echo = require('echomodlib')
+
 require('dotenv').config()
 const dev = (process.env.NODE_ENV === 'development')
 
@@ -18,7 +20,13 @@ const start = (webContents) => {
     })
   }
 
-  const player = new bhapticsPlayer(sendEvent, listenEvent)
+  const player = new echo.TactPlayer(
+      new echo.BHapticsTactJsAdapter(),
+      new echo.IpFinder(),
+      new echo.ConfigLoader(__dirname),
+      sendEvent,
+      listenEvent
+  )
   player.launch()
 }
 
