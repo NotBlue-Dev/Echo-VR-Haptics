@@ -11,9 +11,8 @@ class Wall {
         const velocity = player.velocity
 
         const pyVeloc = Math.pow(velocity[0], 2) + Math.pow(velocity[1], 2) + Math.pow(velocity[2], 2);
-
-        if ((this.lastVel / 2 > pyVeloc && this.lastVel > 24 && pyVeloc > 24)
-        && gameData.isPlayerGrabbingSomething()
+        if ((this.lastVel / 2 > pyVeloc && this.lastVel > 24 && pyVeloc > 16.1)
+        && !gameData.isPlayerGrabbingSomething()
         ) {
             this.tactPlay('wall', this.options);
         }

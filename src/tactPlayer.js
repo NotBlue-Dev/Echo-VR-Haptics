@@ -38,11 +38,13 @@ class TactPlayer {
             .onConnecting(() => {
                 this.sendEvent('tact-device-connecting', {})
             })
-            .onConnected(() => {
+            .onConnected((name) => {
                 //sinon start 4-5 fois la boucle et send l'event plusieurs fois
                 if(this.hapticsConnectionState !== true) {
                     this.hapticsConnectionState = true
-                    this.sendEvent('tact-device-connected', {})
+                    this.sendEvent('tact-device-connected', {
+                        name:name
+                    })
                     this.startRequest()
                 }
             })

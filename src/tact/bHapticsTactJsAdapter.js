@@ -46,7 +46,7 @@ class BHapticsTactJsAdapter {
             if (message.status === 'Connected') {
                 if(this.connected != true) {
                     this.connected = true
-                    this.handleConnected()
+                    this.handleConnected('BHaptic Player')
                     this.loadTactFiles()
                 }
             }

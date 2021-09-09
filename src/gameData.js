@@ -1,5 +1,8 @@
 class GameData {
     constructor(json) {
+        // const playerName = '4k-';
+        this.timestamp = Date.now()
+        this.clock = json.game_clock
         const playerName = json.client_name;
         this.NameOfPlayer = playerName;
         this.blueTeamPlayers = json.teams[0].players;

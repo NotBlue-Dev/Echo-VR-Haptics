@@ -65,8 +65,9 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log('Connecting…');
   });
 
-  ipcRenderer.on('tact-device-connected', () => {
-    console.log('Connected to Bhaptic Player');
+  ipcRenderer.on('tact-device-connected', (arg) => {
+    const name = arg.name || 'Haptic';
+    console.log(`Connected to ${name}`);
     replaceText('#statusHaptic', 'Running and ready to go', '#00D832');
   });
 
@@ -81,6 +82,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   ipcRenderer.on('game-ip-defined', (event, arg) => {
     replaceText('#statusIP', arg, '#00D832');
+    const body = document.querySelector('#body');
+    body && (body.style.cursor = 'auto');
     ipcRenderer.send('save-config');
   });
 
