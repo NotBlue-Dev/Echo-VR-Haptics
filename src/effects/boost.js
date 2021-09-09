@@ -37,9 +37,7 @@ class Boost {
 
         this.oldVelocity = currentVelocity
         this.oldTimestamp = newTimestamp
-
-        // console.log(speedDiff, maxSpeedBoost, diffTimestamp)
-
+        
         if (speedDiff < (maxSpeedBoost * (1 - this.tolerance)) || speedDiff > (maxSpeedBoost * (1 + this.tolerance))) {
             return;
         }
