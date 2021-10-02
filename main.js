@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 
-const echo = require('echomodlib')
+const echo = require('./lib/index')
 
 require('dotenv').config()
 const dev = (process.env.NODE_ENV === 'development')
