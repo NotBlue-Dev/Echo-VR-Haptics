@@ -1,4 +1,5 @@
 # Echo-VR-Haptics
+Library : https://github.com/NotBlue-Dev/EchoVR-Lib
 
 ## About the project ?
 
