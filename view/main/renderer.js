@@ -55,6 +55,7 @@ window.addEventListener('DOMContentLoaded', () => {
       value: '',
       type: 'input',
     }).then((response) => {
+      console.log(response)
       const body = document.querySelector('#body');
       body && (body.style.cursor = 'progress');
       ipcRenderer.send('find-ip', response);

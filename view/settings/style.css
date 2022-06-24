@@ -5,6 +5,7 @@ body {
     background-color: #393E50;
     color: white;
     font-family: 'Montserrat', regular;
+    /* overflow-y: hidden; */
 }
 
 .tit {
