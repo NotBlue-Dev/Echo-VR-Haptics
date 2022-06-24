@@ -1,7 +1,6 @@
 # Echo-VR-Haptics
-Library : https://github.com/NotBlue-Dev/EchoVR-Lib
 
-## About the project ?
+## What is that ?
 
 Echo VR Haptics is an API based project, allowing you to use bhaptics products with echo arena
 
@@ -10,6 +9,8 @@ Echo VR Haptics is an API based project, allowing you to use bhaptics products w
 Curently :
 - X40
 - X16
+
+Coming soon :
 - Arms
 - Face
 
@@ -21,8 +22,21 @@ Curently :
 - HIT WALL
 - BLOCKING
 - HEARTBEAT
-- POWER HAND
+
+Coming Soon :
+
+- BREAK
 - BOOST
+
+## Issues
+
+Your bhaptics player is running but it's saying it's not ?
+- Restart the app 
+
+## Custom tact Files
+
+go to ```resources/app/assets/```
+Then you can change tact files but you need to keep the same name !!
 
 ## How to install
 https://www.youtube.com/watch?v=zLLdhn2b9l0&t=43s
