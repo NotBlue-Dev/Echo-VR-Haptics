@@ -9,8 +9,6 @@ Echo VR Haptics is an API based project, allowing you to use bhaptics products w
 Curently :
 - X40
 - X16
-
-Coming soon :
 - Arms
 - Face
 
