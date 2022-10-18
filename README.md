@@ -20,10 +20,6 @@ Curently :
 - HIT WALL
 - BLOCKING
 - HEARTBEAT
-
-Coming Soon :
-
-- BREAK
 - BOOST
 
 ## Issues
