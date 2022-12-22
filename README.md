@@ -1,6 +1,6 @@
 # Echo-VR-Haptics
 
-## What is that ?
+## About the project ?
 
 Echo VR Haptics is an API based project, allowing you to use bhaptics products with echo arena
 
